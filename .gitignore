@@ -42,6 +42,13 @@ deploy/ansible/playbooks/*/*.retry
 # Ansible-Vault Password
 deploy/ansible/VAULT_SECRET
 
+# Terraform libs, modules and state
+deploy/terraform/**/.terraform
+deploy/terraform/**/secrets.tf
+deploy/terraform/**/tfstate.backup
+#deploy/terraform/**/terraform.tfstate
+
+
 # App
 build
 public/lib
