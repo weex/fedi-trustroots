@@ -33,6 +33,25 @@ function OfferHostEditController(
   vm.invalidateMapSize = invalidateMapSize;
   vm.isDescriptionTooShort = false;
 
+  vm.updateStatus = function(status) {
+    vm.offer.status = status;
+  };
+
+  vm.updateMaxGuests = function(operation, value) {
+    switch (operation) {
+      case '=':
+        vm.offer.maxGuests = value;
+        break;
+      case '+':
+        vm.offer.maxGuests += value;
+        break;
+      case '-':
+        vm.offer.maxGuests -= value;
+        break;
+      default:
+    }
+  };
+
   activate();
 
   /**
