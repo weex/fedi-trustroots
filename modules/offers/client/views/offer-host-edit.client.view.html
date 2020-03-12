@@ -36,115 +36,11 @@
     <uib-tabset class="offer-tabs" active="offerHostEdit.offerTab">
       <uib-tab index="0" heading="Availability">
         <offer-host-availability
-          availability="offerHostEdit.offer.status"
           maxGuests="offerHostEdit.offer.maxGuests"
+          availability="offerHostEdit.offer.status"
           onUpdateAvailability="offerHostEdit.updateStatus"
           onUpdateMaxGuests="offerHostEdit.updateMaxGuests"
         ></offer-host-availability>
-
-        <div class="row">
-          <div class="col-xs-12 col-sm-6">
-            <div class="panel panel-default offer-meta">
-              <div class="panel-body">
-                <fieldset>
-                  <legend><h4 id="offerStatus">Can you host?</h4></legend>
-                  <div
-                    class="btn-group"
-                    role="radiogroup"
-                    aria-labelledby="offerStatus"
-                  >
-                    <label
-                      class="btn btn-lg btn-offer-hosting btn-offer-hosting-yes"
-                      ng-model="offerHostEdit.offer.status"
-                      role="radio"
-                      aria-checked="{{ offerHostEdit.offer.status === 'yes' }}"
-                      uib-btn-radio="'yes'"
-                    >
-                      <span>Yes</span>
-                    </label>
-                    <label
-                      class="btn btn-lg btn-offer-hosting btn-offer-hosting-maybe"
-                      ng-model="offerHostEdit.offer.status"
-                      role="radio"
-                      aria-checked="{{ offerHostEdit.offer.status === 'maybe' }}"
-                      uib-btn-radio="'maybe'"
-                    >
-                      <span>Maybe</span>
-                    </label>
-                    <label
-                      class="btn btn-lg btn-offer-hosting btn-offer-hosting-no"
-                      ng-model="offerHostEdit.offer.status"
-                      role="radio"
-                      aria-checked="{{ offerHostEdit.offer.status === 'no' }}"
-                      uib-btn-radio="'no'"
-                    >
-                      <span>No</span>
-                    </label>
-                  </div>
-                </fieldset>
-
-                <br /><br />
-
-                <fieldset
-                  class="offer-maxguests"
-                  ng-if="offerHostEdit.offer.status !== 'no'"
-                >
-                  <legend>
-                    <h4 id="maxGuests">How many guests can you accommodate?</h4>
-                  </legend>
-                  <div class="input-group input-group-stepper">
-                    <span class="input-group-btn">
-                      <button
-                        type="button"
-                        class="btn btn-lg btn-inverse-primary btn-round"
-                        ng-click="offerHostEdit.offer.maxGuests = offerHostEdit.offer.maxGuests - 1"
-                        ng-disabled="offerHostEdit.offer.maxGuests <= 1"
-                        aria-hidden="true"
-                      >
-                        <i class="icon-minus"></i>
-                      </button>
-                    </span>
-                    <input
-                      type="number"
-                      aria-labelledby="maxGuests"
-                      aria-required="true"
-                      ng-disabled="!offerHostEdit.offer"
-                      ng-model="offerHostEdit.offer.maxGuests"
-                      class="form-control input-lg input-plain text-center font-brand-regular"
-                      maxlength="2"
-                      min="1"
-                      max="99"
-                      size="2"
-                      step="1"
-                      pattern="[0-9]{1,2}"
-                    />
-                    <span class="input-group-btn">
-                      <button
-                        type="button"
-                        class="btn btn-lg btn-inverse-primary btn-round"
-                        ng-click="offerHostEdit.offer.maxGuests = offerHostEdit.offer.maxGuests + 1"
-                        ng-disabled="offerHostEdit.offer.maxGuests >= 99"
-                        aria-hidden="true"
-                      >
-                        <i class="icon-plus"></i>
-                      </button>
-                    </span>
-                  </div>
-                </fieldset>
-              </div>
-            </div>
-          </div>
-          <div class="col-xs-12 col-sm-6 text-center hidden-xs">
-            <div class="icon-sofa icon-3x text-muted" aria-hidden="true"></div>
-            <h3>Host Trustroots members</h3>
-            <p class="lead">
-              <em
-                >Offering hospitality and welcoming “strangers” to our homes
-                strengthens our faith in each other.</em
-              >
-            </p>
-          </div>
-        </div>
       </uib-tab>
       <uib-tab index="1" heading="Description">
         <div
