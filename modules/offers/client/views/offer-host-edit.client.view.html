@@ -112,6 +112,11 @@
         select="offer.invalidateMapSize(offerHostEdit.leafletData)"
         disable="offerHostEdit.offer.status === 'no' || offerHostEdit.isDescriptionTooShort"
       >
+        <offer-host-location
+          firstTimeAround="false"
+          status="offerHostEdit.offer.status"
+          location="offerHostEdit.mapCenter"
+        ></offer-host-location>
         <!-- Location -->
         <div class="panel panel-default offer-panel-map">
           <div
