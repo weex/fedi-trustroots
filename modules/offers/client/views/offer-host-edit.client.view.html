@@ -43,6 +43,11 @@
         ></offer-host-availability>
       </uib-tab>
       <uib-tab index="1" heading="Description">
+        <offer-host-description
+          status="offerHostEdit.offer.status"
+          description="offerHostEdit.offer.description"
+          noOfferDescription="offerHostEdit.offer.noOfferDescription"
+        ></offer-host-description>
         <div
           class="panel panel-default"
           ng-if="offerHostEdit.offer.status === 'no'"
