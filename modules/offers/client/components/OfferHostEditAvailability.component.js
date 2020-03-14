@@ -4,27 +4,24 @@ import { useTranslation } from 'react-i18next';
 
 // @TODO missing validation
 
-export default function OfferHostAvailability({
-  availability,
-  onUpdateAvailability,
+export default function OfferHostEditAvailability({
+  status,
+  onChangeStatus,
   maxGuests,
-  onUpdateMaxGuests,
+  onChangeMaxGuests,
 }) {
   return (
     <div className="row">
       <div className="col-xs-12 col-sm-6">
         <div className="panel panel-default offer-meta">
           <div className="panel-body">
-            <AvailabilityInput
-              value={availability}
-              onChange={onUpdateAvailability}
-            />
+            <StatusInput value={status} onChange={onChangeStatus} />
 
             <br />
             <br />
 
-            {availability !== 'no' && (
-              <MaxGuestsInput value={maxGuests} onChange={onUpdateMaxGuests} />
+            {status !== 'no' && (
+              <MaxGuestsInput value={maxGuests} onChange={onChangeMaxGuests} />
             )}
           </div>
         </div>
@@ -35,11 +32,11 @@ export default function OfferHostAvailability({
   );
 }
 
-OfferHostAvailability.propTypes = {
-  availability: PropTypes.oneOf(['yes', 'maybe', 'no']).isRequired,
-  onUpdateAvailability: PropTypes.func.isRequired,
+OfferHostEditAvailability.propTypes = {
+  status: PropTypes.oneOf(['yes', 'maybe', 'no']).isRequired,
+  onChangeStatus: PropTypes.func.isRequired,
   maxGuests: PropTypes.number.isRequired,
-  onUpdateMaxGuests: PropTypes.func.isRequired,
+  onChangeMaxGuests: PropTypes.func.isRequired,
 };
 
 function MotivationBanner() {
@@ -59,10 +56,10 @@ function MotivationBanner() {
   );
 }
 
-function AvailabilityInput({ value, onChange }) {
+function StatusInput({ value, onChange }) {
   const { t } = useTranslation('offers');
 
-  const availabilityOptions = [
+  const statusOptions = [
     { status: 'yes', label: t('Yes') },
     { status: 'maybe', label: t('Maybe') },
     { status: 'no', label: t('No') },
@@ -78,7 +75,7 @@ function AvailabilityInput({ value, onChange }) {
         role="radiogroup"
         aria-labelledby="offerStatus"
       >
-        {availabilityOptions.map(({ label, status }) => (
+        {statusOptions.map(({ label, status }) => (
           <label
             key={status}
             className={`btn btn-lg btn-offer-hosting btn-offer-hosting-${status} ${
@@ -97,7 +94,7 @@ function AvailabilityInput({ value, onChange }) {
   );
 }
 
-AvailabilityInput.propTypes = {
+StatusInput.propTypes = {
   value: PropTypes.oneOf(['yes', 'maybe', 'no']).isRequired,
   onChange: PropTypes.func.isRequired,
 };

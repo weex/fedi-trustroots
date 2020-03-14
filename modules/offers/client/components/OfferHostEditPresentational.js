@@ -1,5 +1,96 @@
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { Tab, Tabs } from 'react-bootstrap';
+import OfferHostEditAvailability from './OfferHostEditAvailability.component';
+import OfferHostEditDescription from './OfferHostEditDescription.component';
+import OfferHostEditLocation from './OfferHostEditLocation.component';
+import Navigation from '@/modules/references/client/components/create-reference/Navigation';
+
+// @TODO translations
+export default function OfferHostEditPresentational({
+  status,
+  maxGuests,
+  description,
+  noOfferDescription,
+  location,
+  onChangeStatus,
+  onChangeMaxGuests,
+  onChangeDescription,
+  onChangeNoOfferDescription,
+  onChangeLocation,
+}) {
+  const [tab, setTab] = useState(0);
+  return (
+    <section className="offers-edit">
+      <button
+        type="submit"
+        className="btn btn-lg btn-inverse-primary pull-right hidden-xs"
+        ng-disabled="offerHostEdit.isLoading ||
+          (offerHostEdit.offer.status!=='no' && offerHostEdit.isDescriptionTooShort)"
+        uib-tooltip="Write longer description first"
+        tooltip-enable="offerHostEdit.isDescriptionTooShort && offerHostEdit.offer.status !== 'no'"
+        tooltip-placement="bottom"
+        aria-hidden="true"
+      >
+        Save and Exit
+      </button>
+      <Tabs
+        className="offer-tabs"
+        activeKey={tab}
+        onSelect={key => setTab(key)}
+        animation={false}
+      >
+        <Tab eventKey={0} title="Availability">
+          <OfferHostEditAvailability
+            status={status}
+            maxGuests={maxGuests}
+            onChangeStatus={onChangeStatus}
+            onChangeMaxGuests={onChangeMaxGuests}
+          />
+        </Tab>
+        <Tab eventKey={1} title="Description">
+          <OfferHostEditDescription
+            status={status}
+            description={description}
+            noOfferDescription={noOfferDescription}
+            onChangeDescription={onChangeDescription}
+            onChangeNoOfferDescription={onChangeNoOfferDescription}
+          />
+        </Tab>
+        <Tab eventKey={2} title="Location">
+          <OfferHostEditLocation
+            status={status}
+            location={location}
+            onChangeLocation={onChangeLocation}
+          />
+        </Tab>
+      </Tabs>
+
+      <Navigation
+        tab={tab}
+        tabs={3}
+        onBack={() => setTab(tab => tab - 1)}
+        onNext={() => setTab(tab => tab + 1)}
+      />
+    </section>
+  );
+}
+
+OfferHostEditPresentational.propTypes = {
+  status: PropTypes.oneOf(['yes', 'maybe', 'no']).isRequired,
+  maxGuests: PropTypes.number.isRequired,
+  description: PropTypes.string.isRequired,
+  noOfferDescription: PropTypes.string.isRequired,
+  location: PropTypes.arrayOf(PropTypes.number).isRequired,
+  onChangeStatus: PropTypes.func.isRequired,
+  onChangeMaxGuests: PropTypes.func.isRequired,
+  onChangeDescription: PropTypes.func.isRequired,
+  onChangeNoOfferDescription: PropTypes.func.isRequired,
+  onChangeLocation: PropTypes.func.isRequired,
+};
+/*
 <section class="offers-edit">
-  <offer-host-edit user="app.user"></offer-host-edit>
+  <offer-host-edit></offer-host-edit>
   <div
     ng-if="app.user.public === true && !offerHostEdit.offer && !offerHostEdit.offers.$resolved"
     class="text-center lead"
@@ -36,19 +127,19 @@
 
     <uib-tabset class="offer-tabs" active="offerHostEdit.offerTab">
       <uib-tab index="0" heading="Availability">
-        <offer-host-edit-availability
+        <offer-host-availability
           maxGuests="offerHostEdit.offer.maxGuests"
           availability="offerHostEdit.offer.status"
           onChangeAvailability="offerHostEdit.updateStatus"
           onChangeMaxGuests="offerHostEdit.updateMaxGuests"
-        ></offer-host-edit-availability>
+        ></offer-host-availability>
       </uib-tab>
       <uib-tab index="1" heading="Description">
-        <offer-host-edit-description
+        <offer-host-description
           status="offerHostEdit.offer.status"
           description="offerHostEdit.offer.description"
           noOfferDescription="offerHostEdit.offer.noOfferDescription"
-        ></offer-host-edit-description>
+        ></offer-host-description>
         <div
           class="panel panel-default"
           ng-if="offerHostEdit.offer.status === 'no'"
@@ -113,11 +204,11 @@
         select="offer.invalidateMapSize(offerHostEdit.leafletData)"
         disable="offerHostEdit.offer.status === 'no' || offerHostEdit.isDescriptionTooShort"
       >
-        <offer-host-edit-location
+        <offer-host-location
           firstTimeAround="false"
           status="offerHostEdit.offer.status"
           location="offerHostEdit.mapCenter"
-        ></offer-host-edit-location>
+        ></offer-host-location>
         <!-- Location -->
         <div class="panel panel-default offer-panel-map">
           <div
@@ -301,3 +392,4 @@
     </nav>
   </form>
 </section>
+*/

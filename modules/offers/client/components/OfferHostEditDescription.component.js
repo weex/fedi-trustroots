@@ -161,7 +161,7 @@ const editorOptions = {
   },
 };
 
-export default function OfferHostDescription({
+export default function OfferHostEditDescription({
   status,
   description,
   noOfferDescription,
@@ -247,7 +247,7 @@ export default function OfferHostDescription({
   );
 }
 
-OfferHostDescription.propTypes = {
+OfferHostEditDescription.propTypes = {
   status: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   noOfferDescription: PropTypes.string.isRequired,

@@ -4,7 +4,7 @@ import { Map } from 'react-leaflet';
 import classnames from 'classnames';
 import MapLayers from '@/modules/core/client/components/MapLayers.component';
 
-export default function OfferHostLocation({
+export default function OfferHostEditLocation({
   firstTimeAround,
   onCloseInfo,
   status,
@@ -124,7 +124,7 @@ export default function OfferHostLocation({
   );
 }
 
-OfferHostLocation.propTypes = {
+OfferHostEditLocation.propTypes = {
   firstTimeAround: PropTypes.bool.isRequired,
   onCloseInfo: PropTypes.func,
   status: PropTypes.oneOf(['yes', 'maybe', 'no']).isRequired,
