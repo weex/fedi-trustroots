@@ -26,3 +26,11 @@ export async function getOffers(userId, types) {
     }
   }
 }
+
+export async function create(data) {
+  await axios.post('api/offers', data);
+}
+
+export async function update(offerId, data) {
+  await axios.put(`api/offers/${offerId}`, data);
+}
