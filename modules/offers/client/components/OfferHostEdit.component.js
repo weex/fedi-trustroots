@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import LoadingIndicator from '@/modules/core/client/components/LoadingIndicator';
 import OfferHostEditPresentational from './OfferHostEditPresentational';
 import * as offersApi from '../api/offers.api';
+import { validate } from '@/modules/core/client/utils/validation';
+import { plainTextLength } from '@/modules/core/client/utils/filters';
 
 const api = { offers: offersApi };
 
@@ -10,6 +13,8 @@ const api = { offers: offersApi };
 const DEFAULT_LOCATION = [48.6908333333, 9.14055555556];
 
 export default function OfferHostEdit({ user }) {
+  const { t } = useTranslation('offers');
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [offerId, setOfferId] = useState();
@@ -96,6 +101,22 @@ export default function OfferHostEdit({ user }) {
 
   if (isLoading) return <LoadingIndicator />;
 
+  const ruleDict = {
+    description: [
+      [
+        (value, { status }) => status === 'no' || plainTextLength(value) >= 5,
+        t('Write longer description first'),
+      ],
+    ],
+  };
+  const valueDict = {
+    status,
+    maxGuests,
+    description,
+    noOfferDescription,
+    location,
+  };
+
   return (
     <OfferHostEditPresentational
       disabled={isSaving}
@@ -106,6 +127,7 @@ export default function OfferHostEdit({ user }) {
       location={location}
       firstTimeAround={firstTimeAround}
       isDefaultLocation={isDefaultLocation}
+      validationErrors={validate(ruleDict, valueDict)}
       onChangeStatus={setStatus}
       onChangeMaxGuests={handleChangeMaxGuests}
       onChangeDescription={setDescription}

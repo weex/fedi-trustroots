@@ -1,5 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Button, Tab, Tabs } from 'react-bootstrap';
+import pick from 'lodash/pick';
+
+import Availability from './OfferHostEditAvailability';
+import Description from './OfferHostEditDescription';
+import Location from './OfferHostEditLocation';
+import Navigation from '@/modules/core/client/components/Navigation';
 
 export default function OfferHostEditPresentational({
   disabled,
@@ -10,6 +17,7 @@ export default function OfferHostEditPresentational({
   location,
   firstTimeAround,
   isDefaultLocation,
+  validationErrors,
   onChangeStatus,
   onChangeMaxGuests,
   onChangeDescription,
@@ -17,68 +25,94 @@ export default function OfferHostEditPresentational({
   onChangeLocation,
   onSubmit,
 }) {
+  const [tab, setTab] = useState(0);
+
+  const isLocationDisabled = status === 'no';
+
+  // there are no validation errors
+  const isValid = Object.values(validationErrors).flat().length === 0;
+
+  const availabilityErrors = pick(validationErrors, ['status', 'maxGuests']);
+  const descriptionErrors = pick(validationErrors, [
+    'description',
+    'noOfferDescription',
+  ]);
+  const locationErrors = pick(validationErrors, ['location']);
+
+  const navigationErrors = [
+    availabilityErrors,
+    descriptionErrors,
+    locationErrors,
+  ].map(errors => Object.values(errors).flat());
+
   return (
-    <ul>
-      <li>first time around: {JSON.stringify(firstTimeAround)}</li>
-      <li>
-        status:
-        <select
-          value={status}
-          onChange={event => onChangeStatus(event.target.value)}
-        >
-          <option value="yes">yes</option>
-          <option value="maybe">maybe</option>
-          <option value="no">no</option>
-        </select>
-      </li>
-      <li>
-        max guests:
-        <button onClick={() => onChangeMaxGuests(1, '-')}>-</button>
-        <input
-          type="number"
-          min="1"
-          step="1"
-          value={maxGuests}
-          onChange={event => onChangeMaxGuests(+event.target.value, '=')}
-        />
-        <button onClick={() => onChangeMaxGuests(1, '+')}>+</button>
-      </li>
-      <li>
-        description:
-        <textarea
-          value={description}
-          onChange={event => onChangeDescription(event.target.value)}
-        />
-      </li>
-      <li>
-        no offer description:
-        <textarea
-          value={noOfferDescription}
-          onChange={event => onChangeNoOfferDescription(event.target.value)}
-        />
-      </li>
-      <li>is default location: {JSON.stringify(isDefaultLocation)}</li>
-      <li>
-        location:
-        <input
-          value={location[0]}
-          onChange={event =>
-            onChangeLocation([+event.target.value, location[1]])
-          }
-        />
-        <input
-          value={location[1]}
-          onChange={event =>
-            onChangeLocation([location[0], +event.target.value])
-          }
-        />
-      </li>
-      <li>
-        <button disabled={disabled} onClick={onSubmit}>
-          Save and Exit
-        </button>
-      </li>
-    </ul>
+    <section className="offers-edit">
+      <Button
+        className="btn-lg btn-inverse-primary pull-right hidden-xs"
+        disabled={disabled || !isValid}
+        onClick={onSubmit}
+        aria-hidden={true}
+      >
+        Save and Exit
+      </Button>
+      {/*
+      <button
+        type="submit"
+        className="btn btn-lg btn-inverse-primary pull-right hidden-xs"
+        ng-disabled="offerHostEdit.isLoading ||
+          (offerHostEdit.offer.status!=='no' && offerHostEdit.isDescriptionTooShort)"
+        uib-tooltip="Write longer description first"
+        tooltip-enable="offerHostEdit.isDescriptionTooShort && offerHostEdit.offer.status !== 'no'"
+        tooltip-placement="bottom"
+        aria-hidden="true"
+      >
+        Save and Exit
+      </button>
+      */}
+      <Tabs
+        id="offer-host-edit-tabs"
+        className="offer-tabs"
+        activeKey={tab}
+        onSelect={key => setTab(key)}
+        animation={false}
+      >
+        <Tab eventKey={0} title="Availability">
+          <Availability
+            status={status}
+            maxGuests={maxGuests}
+            onChangeStatus={onChangeStatus}
+            onChangeMaxGuests={onChangeMaxGuests}
+          />
+        </Tab>
+        <Tab eventKey={1} title="Description">
+          <Description
+            status={status}
+            description={description}
+            noOfferDescription={noOfferDescription}
+            onChangeDescription={onChangeDescription}
+            onChangeNoOfferDescription={onChangeNoOfferDescription}
+          />
+        </Tab>
+        <Tab eventKey={2} title="Location" disabled={isLocationDisabled}>
+          <Location
+            status={status}
+            firstTimeAround={firstTimeAround}
+            defaultZoom={isDefaultLocation ? 6 : 16}
+            location={location}
+            onChangeLocation={onChangeLocation}
+          />
+        </Tab>
+      </Tabs>
+
+      <Navigation
+        tab={tab}
+        tabs={isLocationDisabled ? 2 : 3}
+        errors={navigationErrors}
+        onBack={() => setTab(tab => tab - 1)}
+        onNext={() => setTab(tab => tab + 1)}
+        onSubmit={onSubmit}
+      />
+    </section>
   );
 }
 
@@ -91,6 +125,7 @@ OfferHostEditPresentational.propTypes = {
   location: PropTypes.array.isRequired,
   firstTimeAround: PropTypes.bool.isRequired,
   isDefaultLocation: PropTypes.bool.isRequired,
+  validationErrors: PropTypes.object.isRequired,
   onChangeStatus: PropTypes.func.isRequired,
   onChangeMaxGuests: PropTypes.func.isRequired,
   onChangeDescription: PropTypes.func.isRequired,
