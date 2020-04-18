@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import LoadingIndicator from '@/modules/core/client/components/LoadingIndicator';
 import OfferHostEditPresentational from './OfferHostEditPresentational';
 import * as offersApi from '../api/offers.api';
-import { validate } from '@/modules/core/client/utils/validation';
+import { createValidator } from '@/modules/core/client/utils/validation';
 import { plainTextLength } from '@/modules/core/client/utils/filters';
 
 const api = { offers: offersApi };
@@ -101,21 +101,14 @@ export default function OfferHostEdit({ user }) {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const ruleDict = {
+  const validate = createValidator({
     description: [
       [
         (value, { status }) => status === 'no' || plainTextLength(value) >= 5,
         t('Write longer description first'),
       ],
     ],
-  };
-  const valueDict = {
-    status,
-    maxGuests,
-    description,
-    noOfferDescription,
-    location,
-  };
+  });
 
   return (
     <OfferHostEditPresentational
@@ -127,7 +120,13 @@ export default function OfferHostEdit({ user }) {
       location={location}
       firstTimeAround={firstTimeAround}
       isDefaultLocation={isDefaultLocation}
-      validationErrors={validate(ruleDict, valueDict)}
+      validationErrors={validate({
+        status,
+        maxGuests,
+        description,
+        noOfferDescription,
+        location,
+      })}
       onChangeStatus={setStatus}
       onChangeMaxGuests={handleChangeMaxGuests}
       onChangeDescription={setDescription}

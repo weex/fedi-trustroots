@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Tab, Tabs } from 'react-bootstrap';
-import pick from 'lodash/pick';
 
 import Availability from './OfferHostEditAvailability';
 import Description from './OfferHostEditDescription';
 import Location from './OfferHostEditLocation';
-import Navigation from '@/modules/core/client/components/Navigation';
+import StepNavigation from '@/modules/core/client/components/StepNavigation';
 
 export default function OfferHostEditPresentational({
   disabled,
@@ -25,25 +24,23 @@ export default function OfferHostEditPresentational({
   onChangeLocation,
   onSubmit,
 }) {
-  const [tab, setTab] = useState(0);
+  const [step, setStep] = useState(0);
 
   const isLocationDisabled = status === 'no';
 
   // there are no validation errors
   const isValid = Object.values(validationErrors).flat().length === 0;
 
-  const availabilityErrors = pick(validationErrors, ['status', 'maxGuests']);
-  const descriptionErrors = pick(validationErrors, [
-    'description',
-    'noOfferDescription',
-  ]);
-  const locationErrors = pick(validationErrors, ['location']);
-
+  // @TODO dry this, with CreateReference.component.js
   const navigationErrors = [
-    availabilityErrors,
-    descriptionErrors,
-    locationErrors,
-  ].map(errors => Object.values(errors).flat());
+    [...validationErrors.status, ...validationErrors.maxGuests],
+    [...validationErrors.description, ...validationErrors.noOfferDescription],
+    [...validationErrors.location],
+  ];
+  const currentStepErrors = navigationErrors.slice(0, step + 1).flat();
+  const isNextStepDisabled = disabled || currentStepErrors.length > 0;
+  const nextStepError =
+    !disabled && currentStepErrors.find(error => error.trim().length > 0);
 
   return (
     <section className="offers-edit">
@@ -72,8 +69,8 @@ export default function OfferHostEditPresentational({
       <Tabs
         id="offer-host-edit-tabs"
         className="offer-tabs"
-        activeKey={tab}
-        onSelect={key => setTab(key)}
+        activeKey={step}
+        onSelect={key => setStep(key)}
         animation={false}
       >
         <Tab eventKey={0} title="Availability">
@@ -104,12 +101,13 @@ export default function OfferHostEditPresentational({
         </Tab>
       </Tabs>
 
-      <Navigation
-        tab={tab}
-        tabs={isLocationDisabled ? 2 : 3}
-        errors={navigationErrors}
-        onBack={() => setTab(tab => tab - 1)}
-        onNext={() => setTab(tab => tab + 1)}
+      <StepNavigation
+        currentStep={step}
+        numberOfSteps={isLocationDisabled ? 2 : 3}
+        disabled={isNextStepDisabled}
+        disabledReason={nextStepError}
+        onBack={() => setStep(step => step - 1)}
+        onNext={() => setStep(step => step + 1)}
         onSubmit={onSubmit}
       />
     </section>
