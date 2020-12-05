@@ -129,7 +129,6 @@ module.exports = webpackMerge.merge(shims, {
           {
             loader: 'html-loader',
             options: {
-              // ['img:src', ':ng-include'],
               attributes: {
                 list: [
                   // All default supported tags and attributes

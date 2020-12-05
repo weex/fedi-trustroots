@@ -15,7 +15,6 @@ module.exports = {
         {
           resourcePath: filename,
           options: {
-            // ['img:src', ':ng-include'],
             attributes: {
               list: [
                 // All default supported tags and attributes
