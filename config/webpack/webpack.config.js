@@ -84,6 +84,15 @@ module.exports = webpackMerge.merge(shims, {
         test: /\.js$/,
         loader: 'eslint-loader',
       },
+      // This is due Babel failing to resolve ESM modules in `react-map-gl` package.
+      // It might be okay to remove this later on: just test by removing and running the build
+      // Solution via https://github.com/graphql/graphql-js/issues/2721#issuecomment-723008284
+      {
+        test: /\.m?js/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,
