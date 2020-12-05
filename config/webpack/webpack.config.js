@@ -46,7 +46,7 @@ const styleLoaders = [
 
 module.exports = webpackMerge.merge(shims, {
   mode: isProduction ? 'production' : 'development',
-  devtool: isProduction ? 'source-map' : 'cheap-module-eval-source-map',
+  devtool: isProduction ? 'source-map' : 'eval-cheap-module-source-map',
   entry: require.resolve('./entries/main'),
   output: {
     path: join(basedir, 'public/assets'),
