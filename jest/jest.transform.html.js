@@ -14,9 +14,20 @@ module.exports = {
       htmlLoader.call(
         {
           resourcePath: filename,
-          query: {
-            minimize: true,
-            attrs: ['img:src', ':ng-include'],
+          options: {
+            // ['img:src', ':ng-include'],
+            attributes: {
+              list: [
+                // All default supported tags and attributes
+                '...',
+                {
+                  tag: 'div',
+                  attribute: 'ng-include',
+                  // Type of processing, can be `src` or `scrset`
+                  type: 'src',
+                },
+              ],
+            },
           },
         },
         src,

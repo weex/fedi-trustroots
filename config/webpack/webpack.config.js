@@ -28,7 +28,10 @@ const styleLoaders = [
       },
   {
     loader: 'css-loader',
-    options: { importLoaders: 1 },
+    options: {
+      importLoaders: 1,
+      sourceMap: isDevelopment,
+    },
   },
   {
     loader: 'postcss-loader',
@@ -88,9 +91,9 @@ module.exports = webpackMerge.merge(shims, {
           {
             loader: 'babel-loader',
             options: {
-              plugins: [
+              plugins: compact([
                 isDevelopment && require.resolve('react-refresh/babel'),
-              ].filter(Boolean),
+              ]),
             },
           },
         ],
@@ -126,8 +129,19 @@ module.exports = webpackMerge.merge(shims, {
           {
             loader: 'html-loader',
             options: {
-              minimize: true,
-              attrs: ['img:src', ':ng-include'],
+              // ['img:src', ':ng-include'],
+              attributes: {
+                list: [
+                  // All default supported tags and attributes
+                  '...',
+                  {
+                    tag: 'div',
+                    attribute: 'ng-include',
+                    // Type of processing, can be `src` or `scrset`
+                    type: 'src',
+                  },
+                ],
+              },
             },
           },
         ],
