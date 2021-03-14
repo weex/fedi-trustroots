@@ -134,7 +134,7 @@ export default function SupportForm({ user }) {
                 }}
               ></textarea>
               <span className="help-block">
-                {t('Please write in English if possible.')}
+                {t('Please write in English if possible, thank you.')}
                 <br />
               </span>
             </div>
