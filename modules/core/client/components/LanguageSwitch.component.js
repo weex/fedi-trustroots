@@ -44,9 +44,13 @@ const SearchInput = styled.input`
  * @param {String} buttonStyle - Button style: inverse, default, primary
  * @param {Boolean} [saveToAPI=false] - should we save selected language to API?
  */
-export default function LanguageSwitch({ buttonStyle = 'default', saveToAPI }) {
+export default function LanguageSwitch({
+  buttonStyle = 'default',
+  getAllLocales = false,
+  saveToAPI,
+}) {
   const { t } = useTranslation('core');
-  const locales = getLocales();
+  const locales = getLocales({ getAllLocales });
   const [search, setSearch] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentLanguageCode, setCurrentLanguageCode] = useState(i18n.language);
@@ -150,5 +154,6 @@ export default function LanguageSwitch({ buttonStyle = 'default', saveToAPI }) {
 
 LanguageSwitch.propTypes = {
   buttonStyle: PropTypes.string,
+  getAllLocales: PropTypes.bool,
   saveToAPI: PropTypes.bool,
 };

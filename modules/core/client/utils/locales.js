@@ -7,9 +7,10 @@ const deburr = string =>
 const getSearchableFields = ({ label, code, english }) =>
   [label, code, english].map(deburr).map(name => name.toLowerCase());
 
-export function getLocales() {
+export function getLocales({ getAllLocales = false }) {
   // In production, list only languages over certain % translated
-  if (process.env.NODE_ENV === 'production') {
+  // getAll can be used to fetch all languages regardless, for example when user is translator.
+  if (!getAllLocales && process.env.NODE_ENV === 'production') {
     // Include only languages with `production:true` and sort them by label
     const filteredLocales = locales.filter(({ production }) => production);
     return sortBy(filteredLocales, 'label');
