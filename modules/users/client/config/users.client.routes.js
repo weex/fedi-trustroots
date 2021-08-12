@@ -1,4 +1,3 @@
-import welcomeTemplateUrl from '@/modules/users/client/views/authentication/welcome.client.view.html';
 import profileEditTemplateUrl from '@/modules/users/client/views/profile/profile-edit.client.view.html';
 import profileEditAboutTemplateUrl from '@/modules/users/client/views/profile/profile-edit-about.client.view.html';
 import profileEditLocationsTemplateUrl from '@/modules/users/client/views/profile/profile-edit-locations.client.view.html';
@@ -27,24 +26,10 @@ angular.module('users').config(UsersRoutes);
 /* @ngInject */
 function UsersRoutes($stateProvider) {
   $stateProvider
-    // Invite route deprecated in 11-2018
-    .state('invite', {
-      url: '/invite',
-      controller:
-        /* @ngInject */
-        function ($state) {
-          $state.go('signup');
-        },
-      controllerAs: 'invite',
-      requiresAuth: false,
-      data: {
-        pageTitle: 'Signup',
-      },
-    })
     // Users state routing
     .state('welcome', {
       url: '/welcome',
-      templateUrl: welcomeTemplateUrl,
+      template: '<welcome />',
       requiresAuth: true,
       footerHidden: true,
       data: {
@@ -77,7 +62,7 @@ function UsersRoutes($stateProvider) {
       resolve: {
         // A string value resolves to a service
         SettingsService: 'SettingsService',
-        appSettings: function (SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
       },
@@ -94,7 +79,7 @@ function UsersRoutes($stateProvider) {
       resolve: {
         // A string value resolves to a service
         SettingsService: 'SettingsService',
-        appSettings: function (SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
       },
@@ -136,11 +121,11 @@ function UsersRoutes($stateProvider) {
         SettingsService: 'SettingsService',
         ContactsListService: 'ContactsListService',
 
-        appSettings: function (SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
 
-        profile: function (UserProfilesService, $stateParams, $q) {
+        profile(UserProfilesService, $stateParams, $q) {
           return UserProfilesService.get({
             username: $stateParams.username,
           }).$promise.catch(function (e) {
@@ -154,7 +139,7 @@ function UsersRoutes($stateProvider) {
         },
 
         // Contact is loaded only after profile is loaded, because we need the profile ID
-        contact: function (ContactByService, profile, Authentication) {
+        contact(ContactByService, profile, Authentication) {
           return profile.$promise.then(
             function (profile) {
               // when user doesn't exist, no need to load contact
@@ -181,7 +166,7 @@ function UsersRoutes($stateProvider) {
         },
 
         // Contacts list is loaded only after profile is loaded, because we need the profile ID
-        contacts: function (ContactsListService, profile) {
+        contacts(ContactsListService, profile) {
           return profile.$promise.then(function (profile) {
             // when user doesn't exist, no need to load contacts
             if (!profile._id) {
@@ -256,9 +241,7 @@ function UsersRoutes($stateProvider) {
     // Auth routes
     .state('signup', {
       // `tribe`: preload tribe in suggested tribes list
-      // `code`: prefill invite code
-      // `mwr` used by Matre app if invite list is enabled
-      url: '/signup?tribe&code&mwr',
+      url: '/signup?tribe',
       templateUrl: signupTemplateUrl,
       controller: 'SignupController',
       controllerAs: 'signup',
@@ -270,7 +253,7 @@ function UsersRoutes($stateProvider) {
         // A string value resolves to a service
         SettingsService: 'SettingsService',
 
-        appSettings: function (SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
       },
@@ -289,7 +272,7 @@ function UsersRoutes($stateProvider) {
         // A string value resolves to a service
         SettingsService: 'SettingsService',
 
-        appSettings: function (SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
       },
@@ -365,34 +348,34 @@ function UsersRoutes($stateProvider) {
         pageTitle: 'Remove profile',
       },
     })
-    .state('profile.references', {
-      url: '/references',
+    .state('profile.experiences', {
+      url: '/experiences',
       templateUrl: profileReferencesTemplateUrl,
       requiresAuth: true,
       noScrollingTop: true,
       abstract: true,
       data: {
-        pageTitle: 'Profile references',
+        pageTitle: 'Experiences',
       },
     })
-    .state('profile.references.list', {
+    .state('profile.experiences.list', {
       url: '',
       template:
-        '<list-references ng-if="app.appSettings.referencesEnabled" profile="profileCtrl.profile" authenticatedUser="app.user"></list-references>',
+        '<list-experiences ng-if="app.appSettings.referencesEnabled" profile="profileCtrl.profile" authenticatedUser="app.user"></list-experiences>',
       requiresAuth: true,
       noScrollingTop: true,
       data: {
-        pageTitle: 'Profile references',
+        pageTitle: 'Experiences',
       },
     })
-    .state('profile.references.new', {
+    .state('profile.experiences.new', {
       url: '/new',
       template:
-        '<create-reference ng-if="app.appSettings.referencesEnabled" userTo="profileCtrl.profile" userFrom="app.user"></create-reference>',
+        '<create-experience ng-if="app.appSettings.referencesEnabled" userTo="profileCtrl.profile" userFrom="app.user"></create-experience>',
       requiresAuth: true,
       noScrollingTop: true,
       data: {
-        pageTitle: 'Leave a reference',
+        pageTitle: 'Share your experience',
       },
     });
 }

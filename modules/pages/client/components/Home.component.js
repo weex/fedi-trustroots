@@ -1,23 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { userType } from '@/modules/users/client/users.prop-types';
-import ManifestoText from './ManifestoText.component.js';
-import Tooltip from '@/modules/core/client/components/Tooltip.js';
-import BoardCredits from '@/modules/core/client/components/BoardCredits.js';
+// External dependencies
 import { Trans, useTranslation } from 'react-i18next';
 import classnames from 'classnames';
-import Board from '@/modules/core/client/components/Board.js';
-import { getRouteParams } from '@/modules/core/client/services/angular-compat';
-import { getCircleBackgroundStyle } from '@/modules/tribes/client/utils';
-import * as tribesAPI from '@/modules/tribes/client/api/tribes.api';
+import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
 
-const api = {
-  tribes: tribesAPI,
-};
+// Internal dependencies
+import { getCircleBackgroundStyle } from '@/modules/tribes/client/utils';
+import { getRouteParams } from '@/modules/core/client/services/angular-compat';
+import { userType } from '@/modules/users/client/users.prop-types';
+import * as circlesAPI from '@/modules/tribes/client/api/tribes.api';
+import Board from '@/modules/core/client/components/Board.js';
+import BoardCredits from '@/modules/core/client/components/BoardCredits.js';
+import ManifestoText from './ManifestoText.component.js';
+import Screenshot from '@/modules/core/client/components/Screenshot.js';
+import screenshotProfilePng from '../img/screenshot-profile.png';
+import screenshotProfilePng2x from '../img/screenshot-profile-2x.png';
+import screenshotProfileWebp from '../img/screenshot-profile.webp';
+import screenshotProfileWebp2x from '../img/screenshot-profile-2x.webp';
+import screenshotSearchPng from '../img/screenshot-search.png';
+import screenshotSearchPng2x from '../img/screenshot-search-2x.png';
+import screenshotSearchWebp from '../img/screenshot-search.webp';
+import screenshotSearchWebp2x from '../img/screenshot-search-2x.webp';
+import Tooltip from '@/modules/core/client/components/Tooltip.js';
+
+/**
+ * List of photos to randomly pick as cover photo for homepage
+ *
+ * @param  {[String]} circleSlug Slug of circle.
+ * @return {Array}
+ */
+function getBoardPictures(circleSlug) {
+  // Default photos
+  let boards = [
+    'woman-bridge',
+    'rainbowpeople',
+    'hitchroad',
+    'hitchgirl1',
+    'wavewatching',
+    'sahara-backpacker',
+    'hitchtruck',
+  ];
+
+  // Different set of photos for cyclists circle
+  if (circleSlug === 'cyclists') {
+    boards = ['cyclist'];
+  }
+
+  // Different set of photos for these 3 circles
+  if (
+    circleSlug &&
+    ['hitchhikers', 'dumpster-divers', 'punks'].includes(circleSlug)
+  ) {
+    boards = [
+      'rainbowpeople',
+      'hitchroad',
+      'desertgirl',
+      'hitchgirl1',
+      'hitchgirl2',
+      'hitchtruck',
+    ];
+  }
+
+  return boards;
+}
+
+/**
+ * Signup URL appended with circle if available
+ *
+ * @param  {[String]} circleSlug Slug of circle.
+ * @return {String} Signup URL
+ */
+export function getSignupUrl(circleSlug) {
+  if (circleSlug) {
+    // @TODO: change `tribe` to `circle`, needs changes in Signup form controller
+    return `/signup?tribe=${circleSlug}`;
+  }
+
+  return '/signup';
+}
 
 export default function Home({ user, isNativeMobileApp, photoCredits }) {
   const { t } = useTranslation('pages');
-  const { tribe: tribeRoute } = getRouteParams();
+  // `tribe` route supported for legacy reasons, deprecated Feb 2021
+  const { circle: circleRouteParam, tribe: tribeRouteParam } = getRouteParams();
+  const circleRoute = circleRouteParam || tribeRouteParam;
+
+  // @TODO change this to be based on UI language rather than browser locale
+  const memberCount = new Intl.NumberFormat().format(59000);
 
   // TODO get header height instead of magic number 56
   // const headerHeight = angular.element('#tr-header').height() || 0; // code of the original angular controller
@@ -28,43 +97,23 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
       ? 400
       : window.innerHeight - headerHeight + 14;
 
-  const boards =
-    tribeRoute &&
-    ['hitchhikers', 'dumpster-divers', 'punks'].indexOf(tribeRoute) > -1
-      ? // Photos for these 3 circles
-        [
-          'rainbowpeople',
-          'hitchroad',
-          'desertgirl',
-          'hitchgirl1',
-          'hitchgirl2',
-          'hitchtruck',
-        ]
-      : [
-          'woman-bridge',
-          'rainbowpeople',
-          'hitchroad',
-          'hitchgirl1',
-          'wavewatching',
-          'sahara-backpacker',
-          'hitchtruck',
-        ];
+  const boards = getBoardPictures(circleRoute);
 
-  const [tribes, setTribes] = useState([]);
+  const [circles, setCircles] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
-      const tribes = await api.tribes.read({ limit: 3 });
-      const tribeIsLoaded = tribes.some(t => t.slug === tribeRoute);
+      const circles = await circlesAPI.read({ limit: 3 });
+      const circleIsLoaded = circles.some(t => t.slug === circleRoute);
 
-      if (tribeRoute && !tribeIsLoaded) {
-        const extraTribe = await api.tribes.get(tribeRoute);
+      if (circleRoute && !circleIsLoaded) {
+        const extraCircle = await circlesAPI.get(circleRoute);
 
-        if (extraTribe && extraTribe._id) {
-          tribes.unshift(extraTribe);
+        if (extraCircle && extraCircle._id) {
+          circles.unshift(extraCircle);
         }
       }
-      setTribes(tribes);
+      setCircles(circles);
     }
     fetchData();
   }, []);
@@ -106,7 +155,7 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
                     {t('Sharing, hosting and getting people together.')}
                   </h4>
                   <a
-                    href="/signup"
+                    href={getSignupUrl(circleRoute)}
                     className="btn btn-action btn-default home-join hidden-xs"
                   >
                     {t('Join Trustroots now')}
@@ -161,19 +210,20 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
                 <br />
                 <br />
                 {/* @TODO remove ns (issue #1368) */}
-                <Trans t={t} ns="pages">
-                  Trustroots is over <a href="/statistics">50,000 members</a>{' '}
-                  strong!
+                <Trans t={t} ns="pages" values={{ memberCount }}>
+                  Trustroots is over{' '}
+                  <a href="/statistics">{{ memberCount }} members</a> strong and
+                  growing!
                 </Trans>
               </p>
             </div>
-            <div className="col-md-7">
-              <div className="home-browser">
-                <div className="home-browser-circle"></div>
-                <div className="home-browser-circle"></div>
-                <div className="home-browser-circle"></div>
-                <div className="home-browser-screenshot home-browser-screenshot-search"></div>
-              </div>
+            <div aria-hidden className="col-md-7">
+              <Screenshot
+                png={screenshotSearchPng}
+                png2x={screenshotSearchPng2x}
+                webp={screenshotSearchWebp}
+                webp2x={screenshotSearchWebp2x}
+              />
             </div>
           </div>
         </div>
@@ -183,13 +233,13 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
       <section className="home-how">
         <div className="container">
           <div className="row">
-            <div className="col-xs-12 col-md-7 hidden-xs hidden-sm">
-              <div className="home-browser">
-                <div className="home-browser-circle"></div>
-                <div className="home-browser-circle"></div>
-                <div className="home-browser-circle"></div>
-                <div className="home-browser-screenshot home-browser-screenshot-profile"></div>
-              </div>
+            <div aria-hidden className="col-xs-12 col-md-7 hidden-xs hidden-sm">
+              <Screenshot
+                png={screenshotProfilePng}
+                png2x={screenshotProfilePng2x}
+                webp={screenshotProfileWebp}
+                webp2x={screenshotProfileWebp2x}
+              />
             </div>
             <div className="col-xs-12 col-sm-offset-2 col-sm-8 col-md-offset-0 col-md-5 text-center lead">
               <div className="home-wohoo center-block hidden-xs hidden-sm"></div>
@@ -209,8 +259,7 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
         </div>
       </section>
 
-      {/* Tribes */}
-      {tribes.length > 0 && (
+      {circles.length > 0 && (
         <section className="home-how">
           <div className="container">
             <div className="row">
@@ -229,30 +278,30 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
                 </div>
               </div>
               <div className="col-xs-12 visible-xs tribes-xs">
-                {tribes.slice(0, 3).map(tribe => (
+                {circles.slice(0, 3).map(circle => (
                   <a
-                    key={tribe._id}
-                    href={`/circles/${tribe.slug}`}
+                    key={circle._id}
+                    href={`/circles/${circle.slug}`}
                     className="img-circle tribe-xs tribe-image"
-                    style={getCircleBackgroundStyle(tribe, '520x520')}
+                    style={getCircleBackgroundStyle(circle, '742x496')}
                   >
-                    {!tribe.image && <span>{tribe.label.charAt(0)}</span>}
+                    {!circle.image && <span>{circle.label.charAt(0)}</span>}
                   </a>
                 ))}
               </div>
-              {tribes.slice(0, 3).map((tribe, index, items) => (
+              {circles.slice(0, 3).map((circle, index, items) => (
                 <div
-                  key={tribe._id}
+                  key={circle._id}
                   className={classnames('col-sm-3', 'hidden-xs', {
                     'col-sm-pull-3': index < items.length - 1,
                   })}
                 >
                   <div
                     className="img-circle tribe tribe-image"
-                    style={getCircleBackgroundStyle(tribe, '1024x768')}
+                    style={getCircleBackgroundStyle(circle, '742x496')}
                   >
-                    <a href={`/circles/${tribe.slug}`} className="tribe-link">
-                      <h3 className="tribe-label">{tribe.label}</h3>
+                    <a href={`/circles/${circle.slug}`} className="tribe-link">
+                      <h3 className="tribe-label">{circle.label}</h3>
                     </a>
                   </div>
                 </div>
@@ -277,7 +326,7 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
                   <br />
                   <br />
                   <a
-                    href="signup"
+                    href={getSignupUrl(circleRoute)}
                     className="btn btn-lg btn-action btn-default"
                   >
                     {t('Join Trustroots')}
@@ -322,9 +371,9 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
                   felt that the world of sharing is being taken over by
                   corporations trying to monetize people&apos;s willingness to
                   help each other. Same team brought you also{' '}
-                  <a href="http://hitchwiki.org/">Hitchwiki</a>,{' '}
-                  <a href="http://trashwiki.org/">Trashwiki</a> and{' '}
-                  <a href="http://nomadwiki.org/">Nomadwiki</a>.
+                  <a href="https://hitchwiki.org/">Hitchwiki</a>,{' '}
+                  <a href="https://trashwiki.org/">Trashwiki</a> and{' '}
+                  <a href="https://nomadwiki.org/">Nomadwiki</a>.
                 </Trans>
               </p>
               <p>
@@ -361,9 +410,6 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
                 </li>
                 <li>
                   <a href="https://ideas.trustroots.org/">{t('Blog')}</a>
-                </li>
-                <li>
-                  <a href="https://shop.trustroots.org/">{t('Shop')}</a>
                 </li>
                 <li>
                   <a href="/volunteering">{t('Volunteering')}</a>
@@ -424,7 +470,7 @@ export default function Home({ user, isNativeMobileApp, photoCredits }) {
               <li>
                 <Tooltip id="instagram-tooltip" tooltip="Instagram">
                   <a
-                    href="https://www.instagram.com/trustroots_org/"
+                    href="https://www.instagram.com/trustroots/"
                     aria-label={t('Trustroots at Instagram')}
                   >
                     <i className="icon-instagram icon-lg"></i>

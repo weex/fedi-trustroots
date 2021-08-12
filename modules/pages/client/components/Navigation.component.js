@@ -40,6 +40,10 @@ export default function Navigation({ user, onSignout, isNativeMobileApp }) {
           {t('Contacts')}
         </a>
 
+        <a href="/search/members" className="list-group-item">
+          {t('Find people')}
+        </a>
+
         <a href="/circles" className="list-group-item">
           {t('Circles')}
         </a>
@@ -74,9 +78,6 @@ export default function Navigation({ user, onSignout, isNativeMobileApp }) {
         </a>
         <a className="list-group-item" href="https://ideas.trustroots.org/">
           {t('Blog')}
-        </a>
-        <a className="list-group-item" href="https://shop.trustroots.org/">
-          {t('Shop')}
         </a>
         <a className="list-group-item" href="/media">
           {t('Media')}
@@ -146,9 +147,9 @@ export default function Navigation({ user, onSignout, isNativeMobileApp }) {
               <a
                 href="https://www.facebook.com/trustroots.org"
                 className="btn btn-default center-block"
-                aria-label="Trustroots Page at Facebook"
+                aria-label={t('Trustroots page at Facebook')}
               >
-                {t('Facebook (Page)')}
+                {t('Facebook page')}
               </a>
             </p>
           </li>
@@ -157,9 +158,9 @@ export default function Navigation({ user, onSignout, isNativeMobileApp }) {
               <a
                 href="https://www.facebook.com/trustroots.org"
                 className="btn btn-default center-block"
-                aria-label="{t('Trustroots Group at Facebook')}"
+                aria-label={t('Trustroots group at Facebook')}
               >
-                {t('Facebook (Group)')}
+                {t('Facebook group')}
               </a>
             </p>
           </li>
@@ -168,7 +169,7 @@ export default function Navigation({ user, onSignout, isNativeMobileApp }) {
               <a
                 href="https://twitter.com/trustroots"
                 className="btn btn-default center-block"
-                aria-label="{t('Trustroots at Twitter')}"
+                aria-label={t('Trustroots at Twitter')}
               >
                 Twitter
               </a>
@@ -177,9 +178,9 @@ export default function Navigation({ user, onSignout, isNativeMobileApp }) {
           <li>
             <p>
               <a
-                href="https://www.instagram.com/trustroots_org/"
+                href="https://www.instagram.com/trustroots/"
                 className="btn btn-default center-block"
-                aria-label="{t('Trustroots at Instagram')}"
+                aria-label={t('Trustroots at Instagram')}
               >
                 Instagram
               </a>
@@ -190,7 +191,7 @@ export default function Navigation({ user, onSignout, isNativeMobileApp }) {
               <a
                 href="https://github.com/Trustroots/trustroots"
                 className="btn btn-default center-block"
-                aria-label="{t('Trustroots at GitHub')}"
+                aria-label={t('Trustroots at GitHub')}
               >
                 GitHub
               </a>

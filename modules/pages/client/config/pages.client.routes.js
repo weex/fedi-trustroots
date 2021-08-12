@@ -60,41 +60,28 @@ function PagesRoutes($stateProvider) {
     })
     .state('faq.general', {
       url: '',
-      template: `
-        <faq-general
-          user="app.user"
-          invitationsEnabled="app.appSettings.invitationsEnabled"
-        />`,
+      template: `<faq-general />`,
       data: {
         pageTitle: 'FAQ - Site & community',
       },
     })
     .state('faq.circles', {
       url: '/circles',
-      template: `
-        <faq-tribes
-          invitationsEnabled="app.appSettings.invitationsEnabled"
-        />`,
+      template: `<faq-tribes />`,
       data: {
         pageTitle: 'FAQ - Circles',
       },
     })
     .state('faq.foundation', {
       url: '/foundation',
-      template: `
-        <faq-foundation
-          invitationsEnabled="app.appSettings.invitationsEnabled"
-        />`,
+      template: `<faq-foundation />`,
       data: {
         pageTitle: 'FAQ - Foundation',
       },
     })
     .state('faq.technology', {
       url: '/technology',
-      template: `
-        <faq-technology
-          invitationsEnabled="app.appSettings.invitationsEnabled"
-        />`,
+      template: `<faq-technology />`,
       data: {
         pageTitle: 'FAQ - Technology',
       },
@@ -133,11 +120,10 @@ function PagesRoutes($stateProvider) {
     .state('about', {
       url: '/about',
       footerHidden: true,
-      controller:
-        /* @ngInject */
-        function ($state) {
-          $state.go('home');
-        },
+      /* @ngInject */
+      controller($state) {
+        $state.go('home');
+      },
       controllerAs: 'about',
     });
 
@@ -148,7 +134,7 @@ function PagesRoutes($stateProvider) {
   // eslint-disable-next-line angular/window-service
   if (window.location.search.search('_escaped_fragment_') === -1) {
     $stateProvider.state('home', {
-      url: '/?tribe',
+      url: '/?tribe?circle',
       template: `
         <home
           user="app.user"

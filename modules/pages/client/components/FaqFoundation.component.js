@@ -1,13 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Faq from '@/modules/pages/client/components/Faq.component.js';
 import { Trans, useTranslation } from 'react-i18next';
 
-export default function FaqFoundation({ invitationsEnabled }) {
+export default function FaqFoundation() {
   const { t } = useTranslation('pages');
 
   return (
-    <Faq category="foundation" invitationsEnabled={invitationsEnabled}>
+    <Faq category="foundation">
       <div className="faq-question" id="what-is-your-legal-status">
         <h3>{t("What's your legal status?")}</h3>
         <Trans t={t} ns="pages">
@@ -37,7 +36,7 @@ export default function FaqFoundation({ invitationsEnabled }) {
             <Trans t={t} ns="pages">
               Additionally, section 60 exemption from the obligation to have
               name ending with “limited”{' '}
-              <a href="http://www.legislation.gov.uk/ukpga/2006/46/section/62">
+              <a href="https://www.legislation.gov.uk/ukpga/2006/46/section/62">
                 requires
               </a>{' '}
               that:
@@ -67,7 +66,7 @@ export default function FaqFoundation({ invitationsEnabled }) {
         <h4>{t('More reading:')}</h4>
         <ul>
           <li>
-            <a href="http://www.companylawclub.co.uk/companies-limited-by-guarantee">
+            <a href="https://www.companylawclub.co.uk/companies-limited-by-guarantee">
               {t('CompanyLawClub.co.uk: limited by guarantee')}
             </a>
           </li>
@@ -84,7 +83,7 @@ export default function FaqFoundation({ invitationsEnabled }) {
           <li>
             <a
               title="Section 60 exemption requirements"
-              href="http://www.legislation.gov.uk/ukpga/2006/46/section/62"
+              href="https://www.legislation.gov.uk/ukpga/2006/46/section/62"
             >
               {t('Section 60 exemption requirements')}
             </a>
@@ -136,8 +135,8 @@ export default function FaqFoundation({ invitationsEnabled }) {
           <a href="https://www.warmshowers.org/">Warmshowers Foundation</a>,{' '}
           <a href="http://www.abgefahren-ev.de/">Abgefahren e.V.</a>{' '}
           (Hitchwiki), <a href="https://www.bevolunteer.org/">BeVolunteer</a>,{' '}
-          <a href="http://www.servas.org/">Servas</a>,{' '}
-          <a href="http://www.wwoof.net/">WWOOF</a> and many more. Again, if you
+          <a href="https://servas.org/">Servas</a>,{' '}
+          <a href="https://wwoof.net/">WWOOF</a> and many more. Again, if you
           have experience with this it would be great if you{' '}
           <a href="/support">contact us</a>.
         </Trans>
@@ -172,6 +171,4 @@ export default function FaqFoundation({ invitationsEnabled }) {
   );
 }
 
-FaqFoundation.propTypes = {
-  invitationsEnabled: PropTypes.bool,
-};
+FaqFoundation.propTypes = {};

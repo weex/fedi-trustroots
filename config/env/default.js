@@ -12,25 +12,12 @@
 
 module.exports = {
   featureFlags: {
-    reference: false,
-    i18n: false,
+    reference: true,
   },
   app: {
     title: 'Trustroots',
     description:
       'Travellers community for sharing, hosting and getting people together. We want a world that encourages trust and adventure.',
-  },
-  // Is site invitation only?
-  invitations: {
-    enabled: false,
-    // Key salt
-    key: 62618893,
-    // Id for the waiting list feature
-    // http://maitreapp.co
-    maitreId: 'MF930c37aeb3',
-    // These codes are always valid
-    // ONLY lower case
-    alwaysValidCodes: ['trustroots'],
   },
 
   // Appears on top of every page for authenticated users.
@@ -60,49 +47,52 @@ module.exports = {
   profileMinimumLength: 140, // Require User.profile.description to be >=140 chars to send messages
   // Strings not allowed as usernames and tag/tribe labels
   illegalStrings: [
-    'trustroots',
-    'trust',
-    'roots',
-    're',
-    're:',
-    'fwd',
-    'fwd:',
-    'reply',
+    'account',
+    'accounts',
     'admin',
     'administrator',
-    'password',
-    'username',
-    'unknown',
     'anonymous',
-    'null',
-    'undefined',
-    'home',
-    'signup',
-    'signin',
-    'login',
-    'user',
-    'edit',
-    'settings',
-    'username',
-    'user',
-    'demo',
-    'test',
-    'support',
-    'networks',
-    'profile',
-    'avatar',
-    'mini',
-    'photo',
-    'account',
     'api',
-    'modify',
-    'feedback',
-    'security',
-    'accounts',
-    'tribe',
-    'tag',
+    'avatar',
+    'circle',
     'community',
+    'demo',
+    'edit',
+    'feedback',
+    'fwd:',
+    'fwd',
+    'home',
+    'login',
+    'mini',
+    'moderator',
+    'modify',
+    'networks',
+    'null',
+    'official',
+    'password',
+    'photo',
+    'profile',
+    're:',
+    're',
     'remove',
+    'reply',
+    'roots',
+    'security',
+    'settings',
+    'signin',
+    'signup',
+    'support',
+    'tag',
+    'test',
+    'tribe',
+    'trust',
+    'trustroots',
+    'undefined',
+    'unknown',
+    'user',
+    'user',
+    'username',
+    'username',
   ],
   // SparkPost webhook API endpoint configuration (`/api/sparkpost/webhook`)
   sparkpostWebhook: {
@@ -128,8 +118,8 @@ module.exports = {
     key: '',
   },
   limits: {
-    // Maximum length for public feedback for a reference
-    maximumReferenceFeedbackPublicLength: 2000,
+    // Maximum length for public feedback for an experience
+    maximumExperienceFeedbackPublicLength: 2000,
     // Messages shorter than this will be tagged 'short' in influxdb,
     // otherwise 'long'
     longMessageMinimumLength: 170,
@@ -140,8 +130,8 @@ module.exports = {
     // How long we should wait before trying to reactivate "no" hosts?
     // Moment.js `duration` object literal http://momentjs.com/docs/#/durations/
     timeToReactivateHosts: { days: 90 },
-    // How long should user have for replying a reference before it becomes public?
-    timeToReplyReference: { days: 14 },
+    // How long should user have for replying an experience before it becomes public?
+    timeToReplyExperience: { days: 14 },
     // How long should we wait to update user's seen field since the last update
     timeToUpdateLastSeenUser: { minutes: 5 },
     // when to send reminders about unread messages (since the last unread message was sent)
@@ -236,6 +226,15 @@ module.exports = {
     enabled: false,
     options: {
       dsn: '',
+      // Note: integrations are defined directly at `Sentry.init()`, don't add them here.
     },
+  },
+  // Webpack bundle analyzer
+  // Visualize size of webpack output files with an interactive zoomable treemap.
+  // https://www.npmjs.com/package/webpack-bundle-analyzer
+  bundleAnalyzer: {
+    enabled: false,
+    // See https://github.com/webpack-contrib/webpack-bundle-analyzer#options-for-plugin
+    options: {},
   },
 };

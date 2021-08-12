@@ -67,14 +67,14 @@ function trLanguagesDirective() {
       decodeSelectedLanguages();
 
       // Watch for changes in select and encode to array on changes
-      $scope.$watch('trLanguages.selectedLanguages', function (
-        newValue,
-        oldValue,
-      ) {
-        if (newValue.length !== oldValue.length) {
-          encodeSelectedLanguages();
-        }
-      });
+      $scope.$watch(
+        'trLanguages.selectedLanguages',
+        function (newValue, oldValue) {
+          if (newValue.length !== oldValue.length) {
+            encodeSelectedLanguages();
+          }
+        },
+      );
     }
 
     /**
@@ -89,7 +89,7 @@ function trLanguagesDirective() {
         $scope.output.forEach(function (key) {
           if (angular.isString(key)) {
             this.push({
-              key: key,
+              key,
               name: vm.languages[key],
             });
           }

@@ -11,15 +11,15 @@ Make sure you have installed all these prerequisites:
 - [Node.js](https://nodejs.org/en/download/):
   - See "engines" from [`package.json`](https://github.com/Trustroots/trustroots/blob/master/package.json#L11) for supported versions
   - Use `node --version && npm --version` to check your current version.
-  - We recommend managing Node.js versions using [NVM](https://github.com/creationix/nvm).
-- [MongoDB](http://www.mongodb.org/downloads)
+  - We recommend managing Node.js versions using [NVM](https://github.com/nvm-sh/nvm).
+- [MongoDB](https://www.mongodb.org/downloads)
   - See "engines" from [`package.json`](https://github.com/Trustroots/trustroots/blob/master/package.json#L11) for supported versions
   - Use `mongod --version` to check your current version.
 - Some of the NPM modules require compiling native code, which might require installing:
   - MacOS: X-Code's [Command line tools](https://railsapps.github.io/xcode-command-line-tools.html). You can install or confirm they're installed by running `xcode-select --install`
   - Linux: `build-essential` and `make`
 - [GraphicsMagick](http://www.graphicsmagick.org/).
-  - In MacOS, you can simply use [Homebrew](http://mxcl.github.io/homebrew/) to install it:
+  - In MacOS, you can simply use [Homebrew](https://brew.sh/) to install it:
     ```bash
     brew install graphicsmagick
     ```
@@ -41,9 +41,10 @@ mongod
 
 Optional: If you need to modify connection settings, see `config/env/local.js` config file.
 
-### 3. Start the app:
+### 3. Install dependencies and start the app:
 
 ```bash
+npm ci
 npm start
 ```
 
@@ -56,7 +57,7 @@ npm start
 - Stop the app by hitting `Ctrl+C`.
 - When you change any file, they get recompiled and the browser is refreshed.
 - Keep an eye on the console in case of compiling errors.
-- NPM dependencies are installed and kept up-to date automatically when starting the app.
+- NPM dependencies can be updated with `npm ci`
 - You can start clean by running `npm run dropdb && npm run distclean`.
 
 ## Modifying configurations
@@ -69,7 +70,7 @@ Add any configurations you want to keep out of version control to `config/env/lo
 
 MailDev is there for viewing and testing emails during development.
 
-[MailDev](https://github.com/djfarrelly/MailDev) will be already running at [localhost:1080](http://localhost:1080) but if you need to run it manually, type:
+[MailDev](https://github.com/maildev/maildev) will be already running at [localhost:1080](http://localhost:1080) but if you need to run it manually, type:
 
 ```bash
 npm run dashboard:mail
@@ -115,11 +116,27 @@ More information can be found in the NodeJS [debug documentation](https://nodejs
 - `npm run test:server`
 - `npm run test:server:watch` (run + watch for changes)
 
+## Analyzing bundles
+
+You can see what goes into the "bundle" that [Webpack](https://webpack.js.org/) compiles from all the JS, style and image assets by adding this to your `config/env/local/js`:
+
+```js
+bundleAnalyzer: {
+  enabled: true,
+  // See https://github.com/webpack-contrib/webpack-bundle-analyzer#options-for-plugin
+  options: {},
+},
+```
+
+Now when you start the application, [bundle analyzer](https://github.com/webpack-contrib/webpack-bundle-analyzer#readme) will automatically open new browser tab at `http://127.0.0.1:8888/` that shows you information about the bundle.
+
 ## Coding styles
 
-We apply [Eslint](https://eslint.org/) rules to our JavaScript files so you might want to consider installing [editor integration](https://eslint.org/docs/user-guide/integrations#editors) to let it point out errors and warnings.
+We apply [Eslint](https://eslint.org/) rules to our JavaScript files and automatically format them using [Prettier](https://prettier.io/). You should install [Eslint editor integration](https://eslint.org/docs/user-guide/integrations#editors) as well [Prettier editor integration](https://prettier.io/docs/en/editors.html) to notice code formatting errors and let the editor autoformat files for you automatically.
 
-Files are linted as you modify them when running `npm start`, but if you need to lint all the files separately, run:
+Files are autoformatted by Prettier each time you `git commit` your changes.
+
+Files are also continuously linted as you modify them when running `npm start`, but if you need to lint all the files separately, run:
 
 ```bash
 npm run lint
@@ -203,7 +220,7 @@ npm run dropdb
 
 ## Enable collecting statistics to InfluxDB (optional)
 
-1. [Install InfluxDB](https://docs.influxdata.com/influxdb/latest/introduction/installation/) v1.0+ and run it (type `influxd`)
+1. [Install InfluxDB](https://docs.influxdata.com/influxdb/) v1.0+ and run it (type `influxd`)
 
 2. Add InfluxDB configuration to your `./config/env/local.js`:
 
@@ -229,7 +246,7 @@ npm run dropdb
 
 If you prefer [ImageMagick](http://www.imagemagick.org/) over [GraphicsMagick](http://www.graphicsmagick.org/):
 
-1. In MacOS, you can simply use [Homebrew](http://mxcl.github.io/homebrew/) to install it:
+1. In MacOS, you can simply use [Homebrew](https://brew.sh/) to install it:
 
    ```bash
    brew install imagemagick
@@ -241,5 +258,4 @@ If you prefer [ImageMagick](http://www.imagemagick.org/) over [GraphicsMagick](h
 
 - Check and open issues at [GitHub](https://github.com/Trustroots/trustroots/issues)
 - [Contact us](https://www.trustroots.org/contact)
-- https://meta.trustroots.org/
-- https://trustroots.slack.com/
+- [Volunteer chat](https://team.trustroots.org/Chat.html)

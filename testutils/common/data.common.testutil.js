@@ -29,7 +29,7 @@ function generateServerUser(overrides = {}) {
   return {
     ...generateBaseUser(),
     locale: '',
-    public: faker.random.boolean(),
+    public: faker.datatype.boolean(),
     roles: ['user'],
     password: faker.internet.password(),
     ...overrides,
@@ -51,14 +51,32 @@ function generateClientUser(overrides = {}) {
  */
 function generateUsers(
   count,
-  { public: pub, locale } = {},
+  {
+    additionalProvidersData,
+    extSitesBW,
+    extSitesCS,
+    extSitesWS,
+    locale,
+    newsletter,
+    public: pub,
+    pushRegistration,
+  } = {},
   type = 'server',
   tribes = [],
 ) {
   return _.range(count).map(() => {
     switch (type) {
       case 'server':
-        return generateServerUser({ public: pub, locale });
+        return generateServerUser({
+          additionalProvidersData,
+          extSitesBW,
+          extSitesCS,
+          extSitesWS,
+          locale,
+          newsletter,
+          public: pub,
+          pushRegistration,
+        });
       case 'client':
         return generateClientUser({
           memberIds: selectRandom(tribes, 0.4).map(tribe => tribe._id),
@@ -68,28 +86,28 @@ function generateUsers(
 }
 
 /**
- * Generate reference objects.
+ * Generate experience objects.
  * @param {object[]} users - array of mongodb User
- * @param {[number, number, object][]} referenceData - array of data for each reference
- * @param {number} referenceData[][0] - index of userFrom in users
- * @param {number} referenceData[][1] - index of userTo in users
- * @param {object} referenceData[][2] - object of property: value to override default reference properties
+ * @param {[number, number, object][]} experienceData - array of data for each experience
+ * @param {number} experienceData[][0] - index of userFrom in users
+ * @param {number} experienceData[][1] - index of userTo in users
+ * @param {object} experienceData[][2] - object of property: value to override default experience properties
  */
-function generateReferences(users, referenceData) {
-  return referenceData.map(function (data) {
-    const defaultReference = {
+function generateExperiences(users, experienceData) {
+  return experienceData.map(function (data) {
+    const defaultExperience = {
       userFrom: users[data[0]]._id,
       userTo: users[data[1]]._id,
       public: true,
       interactions: {
-        met: faker.random.boolean(),
-        hostedMe: faker.random.boolean(),
-        hostedThem: faker.random.boolean(),
+        met: faker.datatype.boolean(),
+        guest: faker.datatype.boolean(),
+        host: faker.datatype.boolean(),
       },
       recommend: _.sample(['yes', 'no', 'unknown']),
     };
 
-    return _.defaultsDeep({}, data[2], defaultReference);
+    return _.defaultsDeep({}, data[2], defaultExperience);
   });
 }
 
@@ -116,6 +134,6 @@ module.exports = {
   generateId,
   generateClientUser,
   generateUsers,
-  generateReferences,
+  generateExperiences,
   generateTribes,
 };

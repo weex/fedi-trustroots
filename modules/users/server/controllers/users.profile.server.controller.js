@@ -28,9 +28,6 @@ const emailService = require(path.resolve(
 const pushService = require(path.resolve(
   './modules/core/server/services/push.server.service',
 ));
-const inviteCodeService = require(path.resolve(
-  './modules/users/server/services/invite-codes.server.service',
-));
 const statService = require(path.resolve(
   './modules/stats/server/services/stats.server.service',
 ));
@@ -868,6 +865,13 @@ exports.sanitizeProfile = function (profile, authenticatedUser) {
     delete profile.usernameUpdated;
   }
 
+  // Volunteer status
+  if (profile.roles.includes('volunteer-alumni')) {
+    profile.isVolunteerAlumni = true;
+  } else if (profile.roles.includes('volunteer')) {
+    profile.isVolunteer = true;
+  }
+
   // This info totally shouldn't be at the frontend
   //
   // - They're not included on `exports.userProfileFields`,
@@ -993,7 +997,7 @@ exports.joinTribe = function (req, res) {
             res.send({
               message: 'Joined tribe.',
               tribe: pickedTribe,
-              user: user,
+              user,
             });
 
             done();
@@ -1107,7 +1111,7 @@ exports.leaveTribe = function (req, res) {
             res.send({
               message: 'Left tribe.',
               tribe: pickedTribe,
-              user: user,
+              user,
             });
 
             done();
@@ -1175,7 +1179,7 @@ exports.removePushRegistration = function (req, res) {
   const query = {
     $pull: {
       pushRegistration: {
-        token: token,
+        token,
       },
     },
   };
@@ -1241,7 +1245,7 @@ exports.addPushRegistration = function (req, res) {
         User.findByIdAndUpdate(user._id, {
           $pull: {
             pushRegistration: {
-              token: token,
+              token,
             },
           },
         }).exec(function (err) {
@@ -1253,8 +1257,8 @@ exports.addPushRegistration = function (req, res) {
 
       function (done) {
         const registration = {
-          platform: platform,
-          token: token,
+          platform,
+          token,
           created: Date.now(),
         };
 
@@ -1327,69 +1331,6 @@ exports.addPushRegistration = function (req, res) {
       }
     },
   );
-};
-
-/**
- * Redirect invite short URLs
- */
-exports.redirectInviteShortUrl = function (req, res) {
-  return res.redirect(301, '/signup?code=' + _.get(req, 'params.code', ''));
-};
-
-/**
- * Get invitation code
- */
-exports.getInviteCode = function (req, res) {
-  if (!req.user) {
-    return res.status(403).send({
-      message: errorService.getErrorMessageByKey('forbidden'),
-    });
-  }
-
-  return res.send({
-    code: inviteCodeService.getCode(),
-  });
-};
-
-/**
- * Validate invitation code
- */
-exports.validateInviteCode = function (req, res) {
-  const inviteCode = _.get(req.params, 'invitecode', false);
-
-  // Is invite code valid
-  const inviteCodeValid =
-    inviteCode && inviteCodeService.validateCode(inviteCode.toLowerCase());
-
-  // Is code in predefined invite codes list?
-  const isPredefined =
-    inviteCodeValid && inviteCodeService.isPredefined(inviteCode.toLowerCase());
-
-  // Object for statistics
-  const stats = {
-    namespace: 'inviteCodeValidation',
-    counts: {
-      count: 1,
-    },
-    tags: {
-      valid: inviteCodeValid ? 'yes' : 'no',
-      isPredefined: isPredefined ? 'yes' : 'no',
-    },
-    meta: {},
-  };
-
-  // Store predefined codes to stats
-  if (isPredefined) {
-    stats.meta.code = inviteCode.toLowerCase();
-  }
-
-  // Send validation result to stats
-  statService.stat(stats, function () {
-    // Send validation out to API
-    return res.send({
-      valid: inviteCodeValid,
-    });
-  });
 };
 
 /**

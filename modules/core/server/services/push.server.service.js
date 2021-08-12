@@ -74,7 +74,7 @@ exports.notifyMessagesUnread = function (userFrom, userTo, data, callback) {
 
   const notification = {
     title: 'Trustroots',
-    body: body,
+    body,
     click_action: analyticsHandler.appendUTMParams(messagesUrl, {
       source: 'push-notification',
       medium: 'fcm',
@@ -87,32 +87,49 @@ exports.notifyMessagesUnread = function (userFrom, userTo, data, callback) {
 };
 
 /**
- * Send a push notification about a new reference, to the receiver of the reference
- * @param {User} userFrom - user who gave the reference
- * @param {User} userTo - user who received the reference
+ * Send a push notification about a new experience, to the receiver of the experience
+ * @param {User} userFrom - user who gave the experience
+ * @param {User} userTo - user who received the experience
  * @param {Object} data - notification config
- * @param {boolean} data.isFirst - is it the first reference between users?
  */
-exports.notifyNewReference = function (userFrom, userTo, data, callback) {
-  const giveReferenceUrl =
-    url + '/profile/' + userFrom.username + '/references/new';
-  const readReferencesUrl = url + '/profile/' + userTo.username + '/references';
-
-  // When the reference is first, reply reference can be given.
-  // Otherwise both references are public now and can be seen.
-  const actionText = data.isFirst
-    ? 'Give a reference back.'
-    : 'You can see it.';
-  const actionUrl = data.isFirst ? giveReferenceUrl : readReferencesUrl;
+exports.notifyNewExperienceFirst = function (userFrom, userTo, callback) {
+  const giveExperienceUrl = `${url}/profile/${userFrom.username}/experiences/new`;
 
   const notification = {
     title: 'Trustroots',
-    body: userFrom.username + ' gave you a new reference. ' + actionText,
-    click_action: analyticsHandler.appendUTMParams(actionUrl, {
+    body: `${userFrom.displayName} shared their experience with you. Share your experience, too.`,
+    click_action: analyticsHandler.appendUTMParams(giveExperienceUrl, {
       source: 'push-notification',
       medium: 'fcm',
-      campaign: 'new-reference',
-      content: 'reply-to', // @TODO what are the correct parameters here? What do they mean?
+      campaign: 'new-experience',
+      content: 'respond',
+    }),
+  };
+  exports.sendUserNotification(userTo, notification, callback);
+};
+
+/**
+ * Send a push notification about a new experience, to the receiver of the experience
+ * @param {User} userFrom - user who gave the experience
+ * @param {User} userTo - user who received the experience
+ * @param {string} experienceId - ID of the experience
+ */
+exports.notifyNewExperienceSecond = function (
+  userFrom,
+  userTo,
+  experienceId,
+  callback,
+) {
+  const readExperiencesUrl = `${url}/profile/${userTo.username}/experiences#${experienceId}`;
+
+  const notification = {
+    title: 'Trustroots',
+    body: `${userFrom.displayName} shared their experience with you. Both experiences are now published.`,
+    click_action: analyticsHandler.appendUTMParams(readExperiencesUrl, {
+      source: 'push-notification',
+      medium: 'fcm',
+      campaign: 'new-experience',
+      content: 'read',
     }),
   };
   exports.sendUserNotification(userTo, notification, callback);
@@ -122,7 +139,7 @@ exports.sendUserNotification = function (user, notification, callback) {
   const data = {
     userId: user._id,
     pushServices: user.pushRegistration,
-    notification: notification,
+    notification,
   };
 
   agenda.now('send push message', data, callback);

@@ -24,7 +24,7 @@
     "Send": "Envoyer",
     "Sorry I can't host": "Désolé je ne peux pas héberger",
     "Tell a little bit about yourself": "Dîtes en un peu plus sur vous",
-    "Tell your host why you're on a trip": "Dîtes à votre hôte que vous êtes en voyage",
+    "Tell your host why you're on a trip": "Dites à votre hôte pourquoi vous êtes en voyage",
     "This user isn't a member anymore": {
         "": "Cet utilisateur n'est plus membre."
     },
@@ -48,5 +48,11 @@
     "{{count}} unread messages": "{{count}} message non lu",
     "{{count}} unread messages_plural": "{{count}} messages non lus",
     "License": "Licence",
-    "...explaining that you are interested in meeting them, not just looking for free accommodation.": "…montrant que vous êtes intéressé pour les rencontrer, pas seulement pour obtenir un hébergement gratuit."
+    "...explaining that you are interested in meeting them, not just looking for free accommodation.": "…montrant que vous êtes intéressé pour les rencontrer, pas seulement pour obtenir un hébergement gratuit.",
+    "Your response won't be visible to them.": "Votre réponse ne leur sera pas visible.",
+    "Yes": "Oui",
+    "No": "Non",
+    "Do you find messages from this person to be polite, respectful and in the spirit of Trustroots?": "Trouvez-vous que les messages de cette personne sont polis, respectueux et dans l'esprit de Trustroots ?",
+    "Change": "Modifier",
+    "Member is not available anymore.": "Le membre n’est plus disponible."
 }

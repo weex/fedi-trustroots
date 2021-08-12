@@ -14,7 +14,7 @@ function trTribeStylesDirective() {
     restrict: 'A',
     replace: false,
     scope: false,
-    link: function (scope, elem, attrs) {
+    link(scope, elem, attrs) {
       if (
         !angular.isDefined(attrs.trTribeStyles) ||
         attrs.trTribeStyles === '' ||
@@ -26,8 +26,6 @@ function trTribeStylesDirective() {
 
       let style = '';
       const tribe = angular.fromJson(attrs.trTribeStyles);
-
-      console.log(tribe); //eslint-disable-line
 
       // Set background image
       if (tribe.image) {

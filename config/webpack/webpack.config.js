@@ -1,7 +1,12 @@
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const compact = require('lodash/compact');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+// When upgrading to Webpack 5, you might consider swapping this to `@automattic/webpack-rtl-plugin` (fork) because the original isn't maintained anymore
+const WebpackRTLPlugin = require('webpack-rtl-plugin');
 
 // This is very experimental library
 // There might be another favourite react-refresh webpack plugin at some point ...
@@ -105,7 +110,7 @@ module.exports = webpackMerge.merge(shims, {
         },
       },
       {
-        test: /\.(png|jpe?g|gif|svg)$/,
+        test: /\.(png|jpe?g|gif|svg|webp)$/,
         use: [
           {
             loader: 'url-loader',
@@ -148,9 +153,18 @@ module.exports = webpackMerge.merge(shims, {
     ],
   },
   plugins: compact([
+    config.bundleAnalyzer.enabled &&
+      new BundleAnalyzerPlugin(config.bundleAnalyzer.options),
     isProduction &&
       new MiniCssExtractPlugin({
         filename: 'main.css',
+      }),
+    // @TODO: run RTL also on inlined CSS?
+    isProduction &&
+      new WebpackRTLPlugin({
+        diffOnly: true, // The stylesheet created will only contain the css that differs from the source stylesheet.
+        filename: 'main.rtl.css',
+        minify: isProduction,
       }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),

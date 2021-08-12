@@ -21,23 +21,23 @@ export default function RemoveContact({
 
   const isFromMe = contact.userFrom === selfId;
   const isConfirmed = contact.confirmed;
-  const created = new Date(contact.created);
+  const date = new Date(contact.created);
 
   if (isConfirmed) {
     // Remove confirmed contact
     labelTitle = t('Remove contact?');
     labelConfirm = t('Yes, remove contact');
-    labelTime = t('Connected since {{created, MMM D, YYYY}}', { created });
+    labelTime = t('Connected since {{date, LL}}', { date });
   } else if (isFromMe) {
     // Revoke contact request
     labelTitle = t('Revoke contact request?');
     labelConfirm = t('Yes, revoke request');
-    labelTime = t('Requested {{created, MMM D, YYYY}}', { created });
+    labelTime = t('Requested {{date, LL}}', { date });
   } else {
     // Decline received contact request
     labelTitle = t('Decline contact request?');
     labelConfirm = t('Yes, decline request');
-    labelTime = t('Requested {{created, MMM D, YYYY}}', { created });
+    labelTime = t('Requested {{date, LL}}', { date });
   }
 
   return (
@@ -77,7 +77,7 @@ export default function RemoveContact({
             {!inProgress && <span>{labelConfirm}</span>}
             {inProgress && (
               <span role="alertdialog" aria-busy="true" aria-live="assertive">
-                {t('Wait a moment...')}
+                {t('Wait a moment…')}
               </span>
             )}
           </button>

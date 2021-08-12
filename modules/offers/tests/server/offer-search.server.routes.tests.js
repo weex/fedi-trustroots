@@ -5,11 +5,12 @@ const path = require('path');
 const async = require('async');
 const moment = require('moment');
 const mongoose = require('mongoose');
+const express = require(path.resolve('./config/lib/express'));
+const utils = require(path.resolve('./testutils/server/data.server.testutil'));
+
 const User = mongoose.model('User');
 const Offer = mongoose.model('Offer');
 const Tribe = mongoose.model('Tribe');
-const express = require(path.resolve('./config/lib/express'));
-
 /**
  * Globals
  */
@@ -264,6 +265,8 @@ describe('Offer search tests', function () {
     );
   });
 
+  afterEach(utils.clearDatabase);
+
   it('should be able to get empty list from an area where there are no offers', function (done) {
     agent
       .post('/api/auth/signin')
@@ -288,7 +291,7 @@ describe('Offer search tests', function () {
             if (offersGetErr) return done(offersGetErr);
 
             // Set assertions
-            offersGetRes.body.length.should.equal(0);
+            offersGetRes.body.features.length.should.equal(0);
 
             // Call the assertion callback
             return done();
@@ -320,7 +323,7 @@ describe('Offer search tests', function () {
             if (offersGetErr) return done(offersGetErr);
 
             // Set assertions
-            offersGetRes.body.length.should.equal(2);
+            offersGetRes.body.features.length.should.equal(2);
 
             // Call the assertion callback
             return done();
@@ -431,45 +434,46 @@ describe('Offer search tests', function () {
             // Handle offer get error
             if (offersGetErr) return done(offersGetErr);
 
+            // Set assertions
+            offersGetRes.body.features.should.have.lengthOf(2);
+
             // MongoDb returns these in random order, figure out order here
             let user2Order = 1;
             let user3Order = 0;
-            if (offersGetRes.body[0]._id === offer2Id.toString()) {
+            if (
+              offersGetRes.body.features[0].properties.id ===
+              offer2Id.toString()
+            ) {
               user2Order = 0;
               user3Order = 1;
             }
 
-            // Set assertions
-            offersGetRes.body.should.be.instanceof(Array).and.have.lengthOf(2);
-            offersGetRes.body[user2Order].status.should.equal(offer2.status);
-            offersGetRes.body[user2Order].location.should.be
-              .instanceof(Array)
-              .and.have.lengthOf(2);
-            offersGetRes.body[user2Order].location[0].should.be.approximately(
-              offer2.locationFuzzy[0],
-              0.0000000000001,
-            );
-            offersGetRes.body[user2Order].location[1].should.be.approximately(
+            const offerA = offersGetRes.body.features[user2Order];
+            const offerB = offersGetRes.body.features[user3Order];
+
+            offerA.properties.status.should.equal(offer2.status);
+            offerA.geometry.coordinates.should.have.lengthOf(2);
+            offerA.geometry.coordinates[0].should.be.approximately(
               offer2.locationFuzzy[1],
               0.0000000000001,
             );
-            offersGetRes.body[user2Order]._id.should.equal(offer2Id.toString());
-            should.not.exist(offersGetRes.body[user2Order].locationFuzzy);
-
-            offersGetRes.body[user3Order].status.should.equal(offer3.status);
-            offersGetRes.body[user3Order].location.should.be
-              .instanceof(Array)
-              .and.have.lengthOf(2);
-            offersGetRes.body[user3Order].location[0].should.be.approximately(
-              offer3.locationFuzzy[0],
+            offerA.geometry.coordinates[1].should.be.approximately(
+              offer2.locationFuzzy[0],
               0.0000000000001,
             );
-            offersGetRes.body[user3Order].location[1].should.be.approximately(
+            offerA.properties.id.should.equal(offer2Id.toString());
+
+            offerB.properties.status.should.equal(offer3.status);
+            offerB.geometry.coordinates.should.have.lengthOf(2);
+            offerB.geometry.coordinates[0].should.be.approximately(
               offer3.locationFuzzy[1],
               0.0000000000001,
             );
-            offersGetRes.body[user3Order]._id.should.equal(offer3Id.toString());
-            should.not.exist(offersGetRes.body[user3Order].locationFuzzy);
+            offerB.geometry.coordinates[1].should.be.approximately(
+              offer3.locationFuzzy[0],
+              0.0000000000001,
+            );
+            offerB.properties.id.should.equal(offer3Id.toString());
 
             // Call the assertion callback
             return done();
@@ -479,55 +483,56 @@ describe('Offer search tests', function () {
 
   // Tests different regions in the globe (Asia, USA, North Pole etc)
   _.forEach(testLocations, function (testLocation, area) {
-    it('should be able to get offer from an area (' + area + ')', function (
-      done,
-    ) {
-      agent
-        .post('/api/auth/signin')
-        .send(credentials)
-        .expect(200)
-        .end(function (signinErr) {
-          // Handle signin error
-          if (signinErr) return done(signinErr);
+    it(
+      'should be able to get offer from an area (' + area + ')',
+      function (done) {
+        agent
+          .post('/api/auth/signin')
+          .send(credentials)
+          .expect(200)
+          .end(function (signinErr) {
+            // Handle signin error
+            if (signinErr) return done(signinErr);
 
-          // Clean out the DB from other offers
-          Offer.deleteMany().exec(function () {
-            // Create new offer to target location
-            const testLocationOffer = new Offer(offer1);
-            testLocationOffer.location = testLocation.location;
+            // Clean out the DB from other offers
+            Offer.deleteMany().exec(function () {
+              // Create new offer to target location
+              const testLocationOffer = new Offer(offer1);
+              testLocationOffer.location = testLocation.location;
 
-            testLocationOffer.save(function (saveErr, saveRes) {
-              if (saveErr) return done(saveErr);
+              testLocationOffer.save(function (saveErr, saveRes) {
+                if (saveErr) return done(saveErr);
 
-              // Get offers (around Berlin)
-              agent
-                .get('/api/offers' + testLocation.queryBoundingBox)
-                .expect(200)
-                .end(function (offersGetErr, offersGetRes) {
-                  // Handle offer get error
-                  if (offersGetErr) return done(offersGetErr);
+                // Get offers (around Berlin)
+                agent
+                  .get('/api/offers' + testLocation.queryBoundingBox)
+                  .expect(200)
+                  .end(function (offersGetErr, offersGetRes) {
+                    // Handle offer get error
+                    if (offersGetErr) return done(offersGetErr);
 
-                  // Set assertions
-                  offersGetRes.body.should.be
-                    .instanceof(Array)
-                    .and.have.lengthOf(1);
-                  offersGetRes.body[0]._id.should.equal(saveRes._id.toString());
-                  offersGetRes.body[0].location[0].should.be.approximately(
-                    testLocation.location[0],
-                    0.1,
-                  );
-                  offersGetRes.body[0].location[1].should.be.approximately(
-                    testLocation.location[1],
-                    0.1,
-                  );
+                    // Set assertions
+                    offersGetRes.body.features.should.have.lengthOf(1);
 
-                  // Call the assertion callback
-                  return done();
-                });
+                    const offerA = offersGetRes.body.features[0];
+                    offerA.properties.id.should.equal(saveRes._id.toString());
+                    offerA.geometry.coordinates[0].should.be.approximately(
+                      testLocation.location[1],
+                      0.1,
+                    );
+                    offerA.geometry.coordinates[1].should.be.approximately(
+                      testLocation.location[0],
+                      0.1,
+                    );
+
+                    // Call the assertion callback
+                    return done();
+                  });
+              });
             });
           });
-        });
-    });
+      },
+    );
   });
 
   it('should include both meet and host offers when getting a list of offers from an area', function (done) {
@@ -552,16 +557,14 @@ describe('Offer search tests', function () {
               if (offersGetErr) return done(offersGetErr);
 
               // Set assertions
-
-              offersGetRes.body.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(3);
+              offersGetRes.body.features.should.have.lengthOf(3);
 
               // Count different offer types
               // This produces `{'host': 2, 'meet': 1}`
-              const count = _.countBy(offersGetRes.body, function (offer) {
-                return offer.type;
-              });
+              const count = _.countBy(
+                offersGetRes.body.features,
+                offer => offer.properties.type,
+              );
 
               count.host.should.equal(2);
               count.meet.should.equal(1);
@@ -598,14 +601,16 @@ describe('Offer search tests', function () {
               if (offersGetErr) return done(offersGetErr);
 
               // Set assertions
-              offersGetRes.body.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(2);
+              offersGetRes.body.features.should.have.lengthOf(2);
 
               // Only "host" offers here
               // Note that these are in random order from Mongo but it doesn't matter here
-              offersGetRes.body[0].type.should.equal('host');
-              offersGetRes.body[1].type.should.equal('host');
+              offersGetRes.body.features[0].properties.type.should.equal(
+                'host',
+              );
+              offersGetRes.body.features[1].properties.type.should.equal(
+                'host',
+              );
 
               // Call the assertion callback
               return done();
@@ -647,17 +652,22 @@ describe('Offer search tests', function () {
                 // MongoDb returns these in random order, figure out order here
                 let user2Order = 1;
                 let user3Order = 0;
-                if (offersGetRes.body[0]._id === offer2Id.toString()) {
+                if (
+                  offersGetRes.body.features[0].properties.id ===
+                  offer2Id.toString()
+                ) {
                   user2Order = 0;
                   user3Order = 1;
                 }
 
                 // Set assertions
-                offersGetRes.body.should.be
-                  .instanceof(Array)
-                  .and.have.lengthOf(2);
-                offersGetRes.body[user2Order].type.should.equal(offer2.type);
-                offersGetRes.body[user3Order].type.should.equal(offer3.type);
+                offersGetRes.body.features.should.have.lengthOf(2);
+                offersGetRes.body.features[
+                  user2Order
+                ].properties.type.should.equal(offer2.type);
+                offersGetRes.body.features[
+                  user3Order
+                ].properties.type.should.equal(offer3.type);
 
                 // Call the assertion callback
                 return done();
@@ -696,10 +706,10 @@ describe('Offer search tests', function () {
                 if (offersGetErr) return done(offersGetErr);
 
                 // Set assertions
-                offersGetRes.body.should.be
-                  .instanceof(Array)
-                  .and.have.lengthOf(1);
-                offersGetRes.body[0].type.should.equal(offerMeet.type);
+                offersGetRes.body.features.should.have.lengthOf(1);
+                offersGetRes.body.features[0].properties.type.should.equal(
+                  offerMeet.type,
+                );
 
                 // Call the assertion callback
                 return done();
@@ -738,15 +748,14 @@ describe('Offer search tests', function () {
                 if (offersGetErr) return done(offersGetErr);
 
                 // Set assertions
-                offersGetRes.body.should.be
-                  .instanceof(Array)
-                  .and.have.lengthOf(3);
+                offersGetRes.body.features.should.have.lengthOf(3);
 
                 // Count different offer types
                 // This produces `{'host': 2, 'meet': 1}`
-                const count = _.countBy(offersGetRes.body, function (offer) {
-                  return offer.type;
-                });
+                const count = _.countBy(
+                  offersGetRes.body.features,
+                  offer => offer.properties.type,
+                );
 
                 count.host.should.equal(2);
                 count.meet.should.equal(1);
@@ -787,10 +796,10 @@ describe('Offer search tests', function () {
               if (offersGetErr) return done(offersGetErr);
 
               // Set assertions
-              offersGetRes.body.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(1);
-              offersGetRes.body[0]._id.should.equal(offer2._id.toString());
+              offersGetRes.body.features.should.have.lengthOf(1);
+              offersGetRes.body.features[0].properties.id.should.equal(
+                offer2._id.toString(),
+              );
 
               // Call the assertion callback
               return done();
@@ -827,19 +836,20 @@ describe('Offer search tests', function () {
               // MongoDb returns these in random order, figure out order here
               let user2Order = 1;
               let user3Order = 0;
-              if (offersGetRes.body[0]._id === offer2Id.toString()) {
+              if (
+                offersGetRes.body.features[0].properties.id ===
+                offer2Id.toString()
+              ) {
                 user2Order = 0;
                 user3Order = 1;
               }
 
               // Set assertions
-              offersGetRes.body.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(2);
-              offersGetRes.body[user2Order]._id.should.equal(
+              offersGetRes.body.features.should.have.lengthOf(2);
+              offersGetRes.body.features[user2Order].properties.id.should.equal(
                 offer2._id.toString(),
               );
-              offersGetRes.body[user3Order]._id.should.equal(
+              offersGetRes.body.features[user3Order].properties.id.should.equal(
                 offer3._id.toString(),
               );
 
@@ -877,24 +887,21 @@ describe('Offer search tests', function () {
               if (offersGetErr) return done(offersGetErr);
 
               // Set assertions
-              offersGetRes.body.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(1);
-              offersGetRes.body[0].status.should.equal(offer2.status);
-              offersGetRes.body[0].type.should.equal(offer2.type);
-              offersGetRes.body[0].location.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(2);
-              offersGetRes.body[0].location[0].should.be.approximately(
-                offer2.locationFuzzy[0],
-                0.0000000000001,
-              );
-              offersGetRes.body[0].location[1].should.be.approximately(
+              offersGetRes.body.features.should.have.lengthOf(1);
+
+              const offerA = offersGetRes.body.features[0];
+              offerA.properties.id.should.equal(offer2Id.toString());
+              offerA.properties.status.should.equal(offer2.status);
+              offerA.properties.type.should.equal(offer2.type);
+              offerA.geometry.coordinates.should.have.lengthOf(2);
+              offerA.geometry.coordinates[0].should.be.approximately(
                 offer2.locationFuzzy[1],
                 0.0000000000001,
               );
-              offersGetRes.body[0]._id.should.equal(offer2Id.toString());
-              should.not.exist(offersGetRes.body[0].locationFuzzy);
+              offerA.geometry.coordinates[1].should.be.approximately(
+                offer2.locationFuzzy[0],
+                0.0000000000001,
+              );
 
               // Call the assertion callback
               return done();
@@ -932,20 +939,18 @@ describe('Offer search tests', function () {
                 if (offersGetErr) return done(offersGetErr);
 
                 // Set assertions
-                offersGetRes.body.should.be
-                  .instanceof(Array)
-                  .and.have.lengthOf(1);
-                offersGetRes.body[0].status.should.equal(offer2.status);
-                offersGetRes.body[0].type.should.equal(offer2.type);
-                offersGetRes.body[0].location.should.be
-                  .instanceof(Array)
-                  .and.have.lengthOf(2);
-                offersGetRes.body[0].location[0].should.be.approximately(
-                  offer2.locationFuzzy[0],
+                offersGetRes.body.features.should.have.lengthOf(1);
+
+                const offerA = offersGetRes.body.features[0];
+                offerA.properties.status.should.equal(offer2.status);
+                offerA.properties.type.should.equal(offer2.type);
+                offerA.geometry.coordinates.should.have.lengthOf(2);
+                offerA.geometry.coordinates[0].should.be.approximately(
+                  offer2.locationFuzzy[1],
                   0.0000000000001,
                 );
-                offersGetRes.body[0].location[1].should.be.approximately(
-                  offer2.locationFuzzy[1],
+                offerA.geometry.coordinates[1].should.be.approximately(
+                  offer2.locationFuzzy[0],
                   0.0000000000001,
                 );
 
@@ -982,55 +987,49 @@ describe('Offer search tests', function () {
               if (offersGetErr) return done(offersGetErr);
 
               // Set assertions
-              offersGetRes.body.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(2);
+              offersGetRes.body.features.should.have.lengthOf(2);
 
               // MongoDb returns these in random order, figure out order here
               let user2Order = 1;
               let user3Order = 0;
-              if (offersGetRes.body[0]._id === offer2Id.toString()) {
+              if (
+                offersGetRes.body.features[0].properties.id ===
+                offer2Id.toString()
+              ) {
                 user2Order = 0;
                 user3Order = 1;
               }
 
+              const offerA = offersGetRes.body.features[user2Order];
+              const offerB = offersGetRes.body.features[user3Order];
+
               // User 2 offer
-              offersGetRes.body[user2Order].status.should.equal(offer2.status);
-              offersGetRes.body[user2Order].type.should.equal(offer2.type);
-              offersGetRes.body[user2Order].location.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(2);
-              offersGetRes.body[user2Order].location[0].should.be.approximately(
-                offer2.locationFuzzy[0],
-                0.0000000000001,
-              );
-              offersGetRes.body[user2Order].location[1].should.be.approximately(
+              offerA.properties.id.should.equal(offer2Id.toString());
+              offerA.properties.status.should.equal(offer2.status);
+              offerA.properties.type.should.equal(offer2.type);
+              offerA.geometry.coordinates.should.have.lengthOf(2);
+              offerA.geometry.coordinates[0].should.be.approximately(
                 offer2.locationFuzzy[1],
                 0.0000000000001,
               );
-              offersGetRes.body[user2Order]._id.should.equal(
-                offer2Id.toString(),
-              );
-              should.not.exist(offersGetRes.body[user2Order].locationFuzzy);
-
-              // User 3 offer
-              offersGetRes.body[user3Order].status.should.equal(offer3.status);
-              offersGetRes.body[user3Order].type.should.equal(offer2.type);
-              offersGetRes.body[user3Order].location.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(2);
-              offersGetRes.body[user3Order].location[0].should.be.approximately(
-                offer3.locationFuzzy[0],
+              offerA.geometry.coordinates[1].should.be.approximately(
+                offer2.locationFuzzy[0],
                 0.0000000000001,
               );
-              offersGetRes.body[user3Order].location[1].should.be.approximately(
+
+              // User 3 offer
+              offerB.properties.id.should.equal(offer3Id.toString());
+              offerB.properties.status.should.equal(offer3.status);
+              offerB.properties.type.should.equal(offer2.type);
+              offerB.geometry.coordinates.should.have.lengthOf(2);
+              offerB.geometry.coordinates[0].should.be.approximately(
                 offer3.locationFuzzy[1],
                 0.0000000000001,
               );
-              offersGetRes.body[user3Order]._id.should.equal(
-                offer3Id.toString(),
+              offerB.geometry.coordinates[1].should.be.approximately(
+                offer3.locationFuzzy[0],
+                0.0000000000001,
               );
-              should.not.exist(offersGetRes.body[user3Order].locationFuzzy);
 
               // Call the assertion callback
               return done();
@@ -1059,9 +1058,7 @@ describe('Offer search tests', function () {
               if (offersGetErr) return done(offersGetErr);
 
               // Set assertions
-              offersGetRes.body.should.be
-                .instanceof(Array)
-                .and.have.lengthOf(2);
+              offersGetRes.body.features.should.have.lengthOf(2);
 
               // Call the assertion callback
               return done();
@@ -1140,10 +1137,10 @@ describe('Offer search tests', function () {
 
                 // Set assertions
                 // User2's offer should be filtered out
-                offersGetRes.body.should.be
-                  .instanceof(Array)
-                  .and.have.lengthOf(1);
-                offersGetRes.body[0]._id.should.equal(offer3Id.toString());
+                offersGetRes.body.features.should.be.have.lengthOf(1);
+                offersGetRes.body.features[0].properties.id.should.equal(
+                  offer3Id.toString(),
+                );
 
                 // Call the assertion callback
                 return done();
@@ -1153,11 +1150,134 @@ describe('Offer search tests', function () {
     });
   });
 
-  afterEach(function (done) {
-    User.deleteMany().exec(function () {
-      Tribe.deleteMany().exec(function () {
-        Offer.deleteMany().exec(done);
-      });
-    });
+  it('should be able to get offers from users with circles in common and have "showOnlyInMyCircles" set', function (done) {
+    // Verify that offers where showOnlyInMyCircles is true are only appearing
+    // in searches where the authenticated user (user1) has at least one circle
+    // in common with the user that owns the offer.
+    //
+    // Makes the users members of the following tribes:
+    //   - user1: tribe1, tribe2  (the authenticated user)
+    //   - user2: tribe2, tribe3  (overlaps with user1)
+    //   - user3: tribe3          (does not overlap with user1)
+    // The following hosting offers are available:
+    //   - offer1 is owned by user2 and should appear as user1's circles overlap
+    //     with the ones of user2 while showOnlyInMyCircles is true.
+    //   - offer2 is owned by user3 and should *not* appear as user1's circles
+    //     do not overlap with the ones of user3 while showOnlyInMyCircles is true.
+    //   - offer3 is owned by user3 and should appear despite user1's circles not
+    //     overlapping with the ones of user3 since showOnlyInMyCircles is false.
+    let tribe3Id;
+    let offer1Id;
+    async.waterfall(
+      [
+        // Save tribe 3.
+        function (done) {
+          const tribe3 = new Tribe({
+            slug: 'tribe3',
+            label: 'tribe3',
+            color: '333333',
+            count: 1,
+            public: true,
+          });
+          tribe3.save(function (err, tribe3) {
+            tribe3Id = tribe3._id;
+            done(err);
+          });
+        },
+
+        // Set the users' memberships.
+        function (done) {
+          user1.member = [
+            { tribe: tribe1Id, since: new Date() },
+            { tribe: tribe2Id, since: new Date() },
+          ];
+          user1.save(done);
+        },
+        function (user1, done) {
+          user2.member = [
+            { tribe: tribe2Id, since: new Date() },
+            { tribe: tribe3Id, since: new Date() },
+          ];
+          user2.save(done);
+        },
+        function (user2, done) {
+          user3.member = { tribe: tribe3Id, since: new Date() };
+          user3.save(done);
+        },
+
+        // Update the hosting offers.
+        function (user3, done) {
+          // Save hosting offer 1 (user2, showOnlyInMyCircles=true).
+          const o1 = new Offer({
+            ...offer1,
+            user: user2Id,
+            location: testLocations.Europe.location,
+            showOnlyInMyCircles: true,
+          });
+          o1.save(function (err, offer1) {
+            offer1Id = offer1._id;
+            done(err);
+          });
+        },
+        function (done) {
+          // Save hosting offer 2 (user3, showOnlyInMyCircles=true).
+          offer2.user = user3Id;
+          offer2.location = testLocations.Europe.location;
+          offer2.showOnlyInMyCircles = true;
+          offer2.save(done);
+        },
+        function (offer2, done) {
+          // Save hosting offer 3 (user3, showOnlyInMyCircles=false).
+          offer3.user = user3Id;
+          offer3.location = testLocations.Europe.location;
+          offer3.showOnlyInMyCircles = false;
+          offer3.save(done);
+        },
+
+        // The actual test.
+        function (offer3, done) {
+          // Sign in.
+          agent
+            .post('/api/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(done);
+        },
+        function (res, done) {
+          // Fetch the offers.
+          agent
+            .get('/api/offers' + testLocations.Europe.queryBoundingBox)
+            .expect(200)
+            .end(done);
+        },
+        function (offersGetRes, done) {
+          // Verify the offers.
+
+          // Offer 1 and 3 should match. See the test description above for why.
+          const features = offersGetRes.body.features;
+          features.should.have.lengthOf(2);
+
+          // The offers are returned in any order.
+          let offerRes1;
+          let offerRes3;
+          if (features[0].properties.id === offer1Id.toString()) {
+            offerRes1 = features[0];
+            offerRes3 = features[1];
+          } else {
+            offerRes1 = features[1];
+            offerRes3 = features[0];
+          }
+
+          offerRes1.properties.id.should.equal(offer1Id.toString());
+          offerRes3.properties.id.should.equal(offer3Id.toString());
+
+          return done();
+        },
+      ],
+      function (err) {
+        should.not.exist(err);
+        done(err);
+      },
+    );
   });
 });

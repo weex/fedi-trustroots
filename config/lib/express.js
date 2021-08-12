@@ -9,7 +9,7 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
+const mongoStore = require('connect-mongo');
 const favicon = require('serve-favicon');
 const compress = require('compression');
 const methodOverride = require('method-override');
@@ -60,12 +60,7 @@ module.exports.initLocalVariables = function (app) {
   app.locals.appSettings.https = config.https;
   app.locals.appSettings.maxUploadSize = config.maxUploadSize;
   app.locals.appSettings.profileMinimumLength = config.profileMinimumLength;
-  app.locals.appSettings.invitationsEnabled = config.invitations.enabled;
-  app.locals.appSettings.i18nEnabled = config.featureFlags.i18n;
   app.locals.appSettings.referencesEnabled = config.featureFlags.reference;
-  app.locals.appSettings.maitreId = config.invitations.enabled
-    ? config.invitations.maitreId
-    : false;
   app.locals.appSettings.fcmSenderId = config.fcm.senderId;
   app.locals.appSettings.limits = {
     maxOfferValidFromNow: config.limits.maxOfferValidFromNow,
@@ -116,7 +111,7 @@ module.exports.initMiddleware = function (app) {
   // Should be placed before express.static
   app.use(
     compress({
-      filter: function (req, res) {
+      filter(req, res) {
         return /json|text|javascript|css|font|svg/.test(
           res.getHeader('Content-Type'),
         );
@@ -209,8 +204,8 @@ module.exports.initSession = function (app, connection) {
         // closes the browser the cookie (and session) will be removed.
         maxAge: 2419200000, // (in milliseconds) 28 days
       },
-      store: new MongoStore({
-        mongooseConnection: connection,
+      store: mongoStore.create({
+        client: connection.client,
         collection: config.sessionCollection,
       }),
     }),
@@ -292,7 +287,8 @@ module.exports.initHelmetHeaders = function (app) {
         // Defines the origins from which images can be loaded.
         imgSrc: [
           "'self'",
-          'grafana.trustroots.org',
+          'https://hosted.weblate.org', // Translation tool, used on /statistics page
+          'grafana.trustroots.org', // Stats tool, used on /statistics page
           'https://*.tiles.mapbox.com', // Map tiles
           'https://api.mapbox.com', // Map tiles/Geocoding
           'https://events.mapbox.com',
@@ -321,6 +317,7 @@ module.exports.initHelmetHeaders = function (app) {
           "'self'",
           'https://api.mapbox.com',
           'https://events.mapbox.com',
+          'https://fonts.openmaptiles.org',
           'https://tile.openstreetmap.org',
           'fcm.googleapis.com',
           'www.facebook.com',

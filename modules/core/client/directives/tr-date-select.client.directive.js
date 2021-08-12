@@ -40,7 +40,7 @@ angular
       return {
         restrict: 'A',
         replace: true,
-        templateUrl: function ($element, $attrs) {
+        templateUrl($element, $attrs) {
           return $attrs.templateUrl || 'tr-date-select.html';
         },
         require: 'ngModel',
@@ -49,7 +49,7 @@ angular
           selectClass: '@trSelectClass',
         },
 
-        link: function (scope, elem, attrs, ngModel) {
+        link(scope, elem, attrs, ngModel) {
           scope.val = {};
 
           const min = (scope.min = moment(attrs.min || '1900-01-01'));
@@ -69,23 +69,23 @@ angular
             updateDateOptions();
           });
 
-          scope.$watchCollection('[val.date, val.month, val.year]', function (
-            newDate,
-            oldDate,
-          ) {
-            if (scope.val.year && scope.val.month && scope.val.date) {
-              if (!angular.equals(newDate, oldDate)) {
-                const m = moment([
-                  scope.val.year,
-                  scope.val.month - 1,
-                  scope.val.date,
-                ]);
-                ngModel.$setViewValue(m.format('YYYY-MM-DD'));
+          scope.$watchCollection(
+            '[val.date, val.month, val.year]',
+            function (newDate, oldDate) {
+              if (scope.val.year && scope.val.month && scope.val.date) {
+                if (!angular.equals(newDate, oldDate)) {
+                  const m = moment([
+                    scope.val.year,
+                    scope.val.month - 1,
+                    scope.val.date,
+                  ]);
+                  ngModel.$setViewValue(m.format('YYYY-MM-DD'));
+                }
+              } else {
+                ngModel.$setViewValue(null);
               }
-            } else {
-              ngModel.$setViewValue(null);
-            }
-          });
+            },
+          );
 
           function updateMonthOptions() {
             // Values begin at 1 to permit easier boolean testing

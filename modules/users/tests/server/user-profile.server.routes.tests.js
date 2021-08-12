@@ -3,9 +3,11 @@ const request = require('supertest');
 const path = require('path');
 const mongoose = require('mongoose');
 const moment = require('moment');
-const User = mongoose.model('User');
 const config = require(path.resolve('./config/config'));
 const express = require(path.resolve('./config/lib/express'));
+const utils = require(path.resolve('./testutils/server/data.server.testutil'));
+
+const User = mongoose.model('User');
 
 /**
  * Globals
@@ -102,6 +104,8 @@ describe('User profile CRUD tests', function () {
     // Save a user to the test db
     unConfirmedUser.save(done);
   });
+
+  afterEach(utils.clearDatabase);
 
   it('should be able to get own user details successfully even when profile is still non-public', function (done) {
     agent
@@ -253,6 +257,88 @@ describe('User profile CRUD tests', function () {
               .end(done);
           });
       });
+    });
+  });
+
+  it('should be able to see that someone is volunteer when they have "volunteer" role', function (done) {
+    user2.roles = ['user', 'volunteer'];
+
+    user2.save(function (err) {
+      should.not.exist(err);
+      agent
+        .post('/api/auth/signin')
+        .send(credentials)
+        .expect(200)
+        .end(function (signinErr) {
+          should.not.exist(signinErr);
+
+          // Get volunteer's profile
+          agent
+            .get('/api/users/' + user2.username)
+            .expect(200)
+            .end(function (err, res) {
+              if (err) {
+                return done(err);
+              }
+
+              res.body.isVolunteer.should.be.true();
+
+              // Get non volunteer's profile
+              agent
+                .get('/api/users/' + user.username)
+                .expect(200)
+                .end(function (err, res) {
+                  if (err) {
+                    return done(err);
+                  }
+
+                  should.not.exist(res.body.isVolunteer);
+
+                  return done();
+                });
+            });
+        });
+    });
+  });
+
+  it('should be able to see that someone is volunteer-alumni when they have "volunteer-alumni" role', function (done) {
+    user2.roles = ['user', 'volunteer-alumni'];
+
+    user2.save(function (err) {
+      should.not.exist(err);
+      agent
+        .post('/api/auth/signin')
+        .send(credentials)
+        .expect(200)
+        .end(function (signinErr) {
+          should.not.exist(signinErr);
+
+          // Get volunteer-alumni's profile
+          agent
+            .get('/api/users/' + user2.username)
+            .expect(200)
+            .end(function (err, res) {
+              if (err) {
+                return done(err);
+              }
+
+              res.body.isVolunteerAlumni.should.be.true();
+
+              // Get non volunteer-alumni's profile
+              agent
+                .get('/api/users/' + user.username)
+                .expect(200)
+                .end(function (err, res) {
+                  if (err) {
+                    return done(err);
+                  }
+
+                  should.not.exist(res.body.isVolunteerAlumni);
+
+                  return done();
+                });
+            });
+        });
     });
   });
 
@@ -934,13 +1020,13 @@ describe('User profile CRUD tests', function () {
 
               res.body.usernameUpdateAllowed.should.equal(false);
 
-              User.findOne({ username: credentials.username }, function (
-                err,
-                newUser,
-              ) {
-                should.not.exist(newUser.usernameUpdateAllowed);
-                done(err);
-              });
+              User.findOne(
+                { username: credentials.username },
+                function (err, newUser) {
+                  should.not.exist(newUser.usernameUpdateAllowed);
+                  done(err);
+                },
+              );
             });
         });
     });
@@ -964,19 +1050,15 @@ describe('User profile CRUD tests', function () {
               if (err) {
                 return done(err);
               }
-              User.findOne({ username: credentials.username }, function (
-                err,
-                newUser,
-              ) {
-                should.not.exist(newUser.usernameUpdated);
-                done(err);
-              });
+              User.findOne(
+                { username: credentials.username },
+                function (err, newUser) {
+                  should.not.exist(newUser.usernameUpdated);
+                  done(err);
+                },
+              );
             });
         });
     });
-  });
-
-  afterEach(function (done) {
-    User.deleteMany().exec(done);
   });
 });

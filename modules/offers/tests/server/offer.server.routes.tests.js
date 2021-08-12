@@ -4,10 +4,12 @@ const path = require('path');
 const async = require('async');
 const moment = require('moment');
 const mongoose = require('mongoose');
+const express = require(path.resolve('./config/lib/express'));
+const utils = require(path.resolve('./testutils/server/data.server.testutil'));
+
 const User = mongoose.model('User');
 const Offer = mongoose.model('Offer');
 const Tribe = mongoose.model('Tribe');
-const express = require(path.resolve('./config/lib/express'));
 
 /**
  * Globals
@@ -140,6 +142,7 @@ describe('Offer CRUD tests', function () {
       noOfferDescription: '<p>1 I cannot host... :(</p>',
       maxGuests: 5,
       location: testLocations.Europe.location,
+      showOnlyInMyCircles: false,
     };
 
     offer2 = new Offer({
@@ -259,6 +262,8 @@ describe('Offer CRUD tests', function () {
       },
     );
   });
+
+  afterEach(utils.clearDatabase);
 
   describe('Read offer by offer id:', function () {
     it('should not be able to read offer by offer id if not authenticated', function (done) {
@@ -888,6 +893,7 @@ describe('Offer CRUD tests', function () {
                   // Modify offer
                   offer.description = 'MODIFIED';
                   offer.noOfferDescription = 'MODIFIED';
+                  offer.showOnlyInMyCircles = true;
 
                   // Store this for later comparison
                   const previousUpdated = offer.updated;
@@ -911,6 +917,7 @@ describe('Offer CRUD tests', function () {
                           offerNew.description.should.equal('MODIFIED');
                           offerNew.noOfferDescription.should.equal('MODIFIED');
                           offerNew.updated.should.not.equal(previousUpdated);
+                          offerNew.showOnlyInMyCircles.should.equal(true);
                           return done(err);
                         },
                       );
@@ -1250,14 +1257,6 @@ describe('Offer CRUD tests', function () {
               });
           });
         });
-    });
-  });
-
-  afterEach(function (done) {
-    User.deleteMany().exec(function () {
-      Tribe.deleteMany().exec(function () {
-        Offer.deleteMany().exec(done);
-      });
     });
   });
 });
