@@ -13,6 +13,8 @@ import * as usersAPI from '@/modules/users/client/api/users.api';
 import { userType } from '@/modules/users/client/users.prop-types';
 import Monkeybox from '@/modules/users/client/components/Monkeybox';
 import ReportMemberLink from '@/modules/support/client/components/ReportMemberLink.component';
+import BlockMember from '@/modules/users/client/components/BlockMember.component';
+import BlockedMemberBanner from '@/modules/users/client/components/BlockedMemberBanner.component';
 import ThreadReply from '@/modules/messages/client/components/ThreadReply';
 import Activate from '@/modules/users/client/components/Activate';
 import ThreadMessages from '@/modules/messages/client/components/ThreadMessages';
@@ -129,6 +131,7 @@ export default function Thread({ user, profileMinimumLength }) {
   const [removed, setRemoved] = useState(false);
   const [messages, setMessages] = useState([]);
   const cacheKey = `messages.thread.${user._id}-${username}`;
+  const isBlocked = user.blocked?.includes(otherUser?._id);
 
   const hasEmptyProfile = useMemo(
     () => plainTextLength(user.description) < profileMinimumLength,
@@ -147,10 +150,8 @@ export default function Thread({ user, profileMinimumLength }) {
     if (isFetchingMore || !nextParams) return;
     setIsFetchingMore(true);
     try {
-      const {
-        messages: moreMessages,
-        nextParams: moreNextParams,
-      } = await api.messages.fetchMessages(otherUser._id, nextParams);
+      const { messages: moreMessages, nextParams: moreNextParams } =
+        await api.messages.fetchMessages(otherUser._id, nextParams);
       setMessages(messages => [
         ...moreMessages.sort((a, b) => a.created.localeCompare(b.created)),
         ...messages,
@@ -288,13 +289,13 @@ export default function Thread({ user, profileMinimumLength }) {
                   onFetchMore={fetchMoreData}
                 />
               )}
-              {showQuickReply && (
+              {!isBlocked && showQuickReply && (
                 <QuickReply
                   onSend={content => sendMessage(content)}
                   onFocus={focus}
                 />
               )}
-              {showReply && (
+              {!isBlocked && showReply && (
                 <ThreadReply
                   cacheKey={cacheKey}
                   onSend={content => sendMessage(content)}
@@ -309,6 +310,9 @@ export default function Thread({ user, profileMinimumLength }) {
                   </div>
                 </div>
               )}
+              {isBlocked && (
+                <BlockedMemberBanner username={otherUser.username} />
+              )}
             </ThreadContainer>
           )}
         </div>
@@ -319,6 +323,13 @@ export default function Thread({ user, profileMinimumLength }) {
               <ReferenceThread userToId={otherUser._id} />
             )}
             <ReportMemberLink username={otherUser.username} />
+            <br />
+            <br />
+            <BlockMember
+              className="btn btn-xs btn-link text-muted"
+              username={otherUser.username}
+              isBlocked={isBlocked}
+            />
           </div>
         )}
       </div>

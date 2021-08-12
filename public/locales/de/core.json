@@ -6,7 +6,7 @@
     "Next section": "Nächster Abschnitt",
     "Previous section": "Vorheriger Abschnitt",
     "Read more…": "Weiterlesen…",
-    "Wait a moment…": "Warte einen Moment …",
+    "Wait a moment…": "Warte einen Moment…",
     "Zoom in": "Vergrößern",
     "Zoom out": "Verkleinern",
     "Outdoors": "Outdoor",
@@ -17,5 +17,10 @@
     "Map style": "Kartenstil",
     "Continue…": "Weiter…",
     "Contact us": "Kontaktiere uns",
-    "Change map style": "Kartenstil ändern"
+    "Change map style": "Kartenstil ändern",
+    "Select a language": "Wähle eine Sprache aus",
+    "Search languages…": "Suche nach Sprachen…",
+    "Language: {{code}}": "Sprache: {{code}}",
+    "Help us translate.": "Hilf uns beim Übersetzen.",
+    "Cancel": "Abbrechen"
 }

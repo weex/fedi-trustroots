@@ -5,12 +5,13 @@ const request = require('supertest');
 const path = require('path');
 const moment = require('moment');
 const mongoose = require('mongoose');
-const User = mongoose.model('User');
-const Message = mongoose.model('Message');
-const MessageStat = mongoose.model('MessageStat');
-const Thread = mongoose.model('Thread');
 const config = require(path.resolve('./config/config'));
 const express = require(path.resolve('./config/lib/express'));
+const utils = require(path.resolve('./testutils/server/data.server.testutil'));
+
+const User = mongoose.model('User');
+const Message = mongoose.model('Message');
+const Thread = mongoose.model('Thread');
 
 /**
  * Globals
@@ -86,6 +87,8 @@ describe('Message CRUD tests', function () {
       });
     });
   });
+
+  afterEach(utils.clearDatabase);
 
   it('should not be able to read inbox if not logged in', function (done) {
     agent
@@ -660,33 +663,35 @@ describe('Message CRUD tests', function () {
   });
 
   it('should not be able to send a message to non-public user', function (done) {
-    User.findByIdAndUpdate(userToId, { $set: { public: false } }, function (
-      err,
-    ) {
-      if (err) return done(err);
+    User.findByIdAndUpdate(
+      userToId,
+      { $set: { public: false } },
+      function (err) {
+        if (err) return done(err);
 
-      agent
-        .post('/api/auth/signin')
-        .send(credentials)
-        .expect(200)
-        .end(function (signinErr) {
-          // Handle signin error
-          if (signinErr) return done(signinErr);
+        agent
+          .post('/api/auth/signin')
+          .send(credentials)
+          .expect(200)
+          .end(function (signinErr) {
+            // Handle signin error
+            if (signinErr) return done(signinErr);
 
-          agent
-            .post('/api/messages')
-            .send(message)
-            .expect(404)
-            .end(function (messageSaveErr, messageSaveRes) {
-              messageSaveRes.body.message.should.equal(
-                'Member you are writing to does not exist.',
-              );
+            agent
+              .post('/api/messages')
+              .send(message)
+              .expect(404)
+              .end(function (messageSaveErr, messageSaveRes) {
+                messageSaveRes.body.message.should.equal(
+                  'Member you are writing to does not exist.',
+                );
 
-              // Call the assertion callback
-              return done(messageSaveErr);
-            });
-        });
-    });
+                // Call the assertion callback
+                return done(messageSaveErr);
+              });
+          });
+      },
+    );
   });
 
   it('should not be able to send a message when I have too short description', function (done) {
@@ -1104,17 +1109,6 @@ describe('Message CRUD tests', function () {
                   return done(syncReadErr);
                 });
             });
-        });
-      });
-    });
-  });
-
-  afterEach(function (done) {
-    // Uggggly pyramid revenge!
-    User.deleteMany().exec(function () {
-      Message.deleteMany().exec(function () {
-        Thread.deleteMany().exec(function () {
-          MessageStat.deleteMany().exec(done);
         });
       });
     });

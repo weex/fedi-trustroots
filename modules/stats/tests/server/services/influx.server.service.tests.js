@@ -78,33 +78,39 @@ describe('Service: influx', function () {
       });
 
       it('Writing point returns error with no value', function (done) {
-        influxService._writeMeasurement('test', null, { tag: 'tag' }, function (
-          err,
-        ) {
-          try {
-            err.message.should.equal(
-              'InfluxDB Service: no `fields` defined. #ghugGJ',
-            );
-            return done();
-          } catch (e) {
-            return done(e);
-          }
-        });
+        influxService._writeMeasurement(
+          'test',
+          null,
+          { tag: 'tag' },
+          function (err) {
+            try {
+              err.message.should.equal(
+                'InfluxDB Service: no `fields` defined. #ghugGJ',
+              );
+              return done();
+            } catch (e) {
+              return done(e);
+            }
+          },
+        );
       });
 
       it('Writing point returns error with no tag', function (done) {
-        influxService._writeMeasurement('test', { value: 1 }, null, function (
-          err,
-        ) {
-          try {
-            err.message.should.equal(
-              'InfluxDB Service: no `tags` defined. #ghj3ig',
-            );
-            return done();
-          } catch (e) {
-            return done(e);
-          }
-        });
+        influxService._writeMeasurement(
+          'test',
+          { value: 1 },
+          null,
+          function (err) {
+            try {
+              err.message.should.equal(
+                'InfluxDB Service: no `tags` defined. #ghj3ig',
+              );
+              return done();
+            } catch (e) {
+              return done(e);
+            }
+          },
+        );
       });
 
       it('Writing point returns error with wrong time format (nanoseconds)', function (done) {
@@ -187,11 +193,10 @@ describe('Service: influx', function () {
           try {
             sinon.assert.calledOnce(influx.InfluxDB.prototype.writeMeasurement);
 
-            const measurement = influx.InfluxDB.prototype.writeMeasurement.getCall(
-              0,
-            ).args[0];
-            const points = influx.InfluxDB.prototype.writeMeasurement.getCall(0)
-              .args[1];
+            const measurement =
+              influx.InfluxDB.prototype.writeMeasurement.getCall(0).args[0];
+            const points =
+              influx.InfluxDB.prototype.writeMeasurement.getCall(0).args[1];
             should(points.length).eql(1);
             const point = points[0];
 
@@ -240,11 +245,10 @@ describe('Service: influx', function () {
           try {
             sinon.assert.calledOnce(influx.InfluxDB.prototype.writeMeasurement);
 
-            const measurement = influx.InfluxDB.prototype.writeMeasurement.getCall(
-              0,
-            ).args[0];
-            const points = influx.InfluxDB.prototype.writeMeasurement.getCall(0)
-              .args[1];
+            const measurement =
+              influx.InfluxDB.prototype.writeMeasurement.getCall(0).args[0];
+            const points =
+              influx.InfluxDB.prototype.writeMeasurement.getCall(0).args[1];
             should(points.length).eql(1);
             const point = points[0];
 

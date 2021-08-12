@@ -1,8 +1,9 @@
 const semver = require('semver');
 
 // Converts semver range `~16.6.0` to strict version `16.6.0`
-const reactVersion = semver.coerce(require('./package.json').dependencies.react)
-  .version;
+const reactVersion = semver.coerce(
+  require('./package.json').dependencies.react,
+).version;
 
 const rules = {
   'comma-dangle': [2, 'always-multiline'],
@@ -40,13 +41,7 @@ const rules = {
 };
 
 module.exports = {
-  extends: [
-    'eslint:recommended',
-    'plugin:import/errors',
-    // Make sure these Prettier ones are last items on this list
-    'plugin:prettier/recommended',
-    'prettier/babel',
-  ],
+  extends: ['eslint:recommended', 'plugin:import/errors', 'prettier'],
   rules,
   plugins: ['angular', 'react', 'import', 'prettier'],
   settings: {
@@ -166,13 +161,7 @@ module.exports = {
       env: {
         browser: true,
       },
-      extends: [
-        'plugin:react/recommended',
-        // Make sure these Prettier ones are last items on this list
-        'plugin:prettier/recommended',
-        'prettier/react',
-        'prettier/babel',
-      ],
+      extends: ['plugin:react/recommended', 'prettier'],
       settings: {
         react: {
           version: reactVersion,
@@ -205,9 +194,7 @@ module.exports = {
         'plugin:react/recommended',
         'plugin:testing-library/react',
         'plugin:jest-dom/recommended',
-        // Make sure these Prettier ones are last items on this list
         'prettier',
-        'prettier/react',
       ],
       settings: {
         react: {

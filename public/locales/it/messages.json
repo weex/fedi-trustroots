@@ -13,7 +13,7 @@
             "": "Evidenzia il testo per aggiungere collegamenti o cambiarne lo stile. Ctrl+Enter per inviare."
         }
     },
-    "Make sure your profile is complete": "Assicurati di aver completato il tuo profilo",
+    "Make sure your profile is complete": "Assicurati che il tuo profilo sia completo",
     "More messages": "Altri messaggi",
     "No conversations yet": {
         "": "Ancora nessuna conversazione."
@@ -53,5 +53,6 @@
     "Yes": "Sì",
     "No": "No",
     "Do you find messages from this person to be polite, respectful and in the spirit of Trustroots?": "Trovi che i messaggi di questa persona siano educati, rispettosi e nello spirito di Trustroots?",
-    "Change": "Cambia"
+    "Change": "Cambia",
+    "Member is not available anymore.": "Il membro non è più disponibile."
 }

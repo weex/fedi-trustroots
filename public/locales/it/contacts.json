@@ -2,7 +2,7 @@
     "(additional {{amount}} pending)": "",
     "Cancel": "Annulla",
     "Confirm Request": "Conferma richiesta",
-    "Connected since {{created, MMM D, YYYY}}": "Connessə dal {{created, MMM D, YYYY}}",
+    "Connected since {{created, LL}}": "Connessə dal {{created, LL}}",
     "Contact request sent and pending": {
         "": "Richieste di contatto inviate e in attesa."
     },
@@ -11,14 +11,14 @@
     "From <2>{{locationFrom}}</2>": "Da <2>{{locationFrom}}</2>",
     "Lives in <2>{{locationLiving}}</2>": "Vive a <2>{{locationLiving}}</2>",
     "No contacts yet": {
-        "": "Non ha ancora contatti."
+        "": "Ancora nessun contatto."
     },
     "One contact": "Un contatto",
     "Remove contact?": "Rimuovere il contatto?",
-    "Requested {{created, MMM D, YYYY}}": "Richiesto il {{created, MMM D, YYYY}}",
+    "Requested {{created, LL}}": "Richiesta del {{created, LL}}",
     "Revoke Request": "Annulla la richiesta",
     "Revoke contact request?": "Annullare la richiesta di contatto?",
-    "Since {{created, MMM D, YYYY}}": "Dal {{created, MMM D, YYYY}}",
+    "Since {{created, LL}}": "Dal {{created, LL}}",
     "Wait a moment": {
         "": {
             "": {
@@ -35,9 +35,12 @@
     "{{amount}} contacts": "{{amount}} contatti",
     "{{count}} contacts in common": "Un contatto in comune",
     "{{count}} contacts in common_plural": "{{count}} contatti in comune",
-    "{{count}} contacts": "Un contatto",
+    "{{count}} contacts": "{{count}} contatto",
     "{{count}} contacts_plural": "{{count}} contatti",
     "Search contacts": "Ricerca contatti",
     "(additional {{count}} pending)": "(ancora {{count}} in attesa)",
-    "(additional {{count}} pending)_plural": "(ancora {{count}} in attesa)"
+    "(additional {{count}} pending)_plural": "(ancora {{count}} in attesa)",
+    "Wait a moment…": "Si prega di attendere…",
+    "Requested {{date, LL}}": "Richiesta del {{date, LL}}",
+    "Connected since {{date, LL}}": "Connessi dal {{date, LL}}"
 }
