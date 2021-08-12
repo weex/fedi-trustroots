@@ -12,8 +12,7 @@
 
 module.exports = {
   featureFlags: {
-    reference: false,
-    i18n: false,
+    reference: true,
   },
   app: {
     title: 'Trustroots',
@@ -119,8 +118,8 @@ module.exports = {
     key: '',
   },
   limits: {
-    // Maximum length for public feedback for a reference
-    maximumReferenceFeedbackPublicLength: 2000,
+    // Maximum length for public feedback for an experience
+    maximumExperienceFeedbackPublicLength: 2000,
     // Messages shorter than this will be tagged 'short' in influxdb,
     // otherwise 'long'
     longMessageMinimumLength: 170,
@@ -131,8 +130,8 @@ module.exports = {
     // How long we should wait before trying to reactivate "no" hosts?
     // Moment.js `duration` object literal http://momentjs.com/docs/#/durations/
     timeToReactivateHosts: { days: 90 },
-    // How long should user have for replying a reference before it becomes public?
-    timeToReplyReference: { days: 14 },
+    // How long should user have for replying an experience before it becomes public?
+    timeToReplyExperience: { days: 14 },
     // How long should we wait to update user's seen field since the last update
     timeToUpdateLastSeenUser: { minutes: 5 },
     // when to send reminders about unread messages (since the last unread message was sent)
@@ -227,6 +226,7 @@ module.exports = {
     enabled: false,
     options: {
       dsn: '',
+      // Note: integrations are defined directly at `Sentry.init()`, don't add them here.
     },
   },
   // Webpack bundle analyzer

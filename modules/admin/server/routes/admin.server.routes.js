@@ -9,12 +9,18 @@ const adminThreads = require('../controllers/admin.threads.server.controller');
 const adminUsers = require('../controllers/admin.users.server.controller');
 const adminNotes = require('../controllers/admin.notes.server.controller');
 const adminReferenceThreads = require('../controllers/admin.reference-threads.server.controller');
+const adminNewsletter = require('../controllers/admin.newsletter.server.controller');
 
 module.exports = app => {
   app
     .route('/api/admin/acquisition-stories')
     .all(adminPolicy.isAllowed)
     .post(adminAuditLog.record, adminAcquisitionStories.list);
+
+  app
+    .route('/api/admin/acquisition-stories/analysis')
+    .all(adminPolicy.isAllowed)
+    .post(adminAuditLog.record, adminAcquisitionStories.getAnalysis);
 
   app
     .route('/api/admin/audit-log')
@@ -65,4 +71,9 @@ module.exports = app => {
     .route('/api/admin/reference-threads')
     .all(adminPolicy.isAllowed)
     .get(adminAuditLog.record, adminReferenceThreads.list);
+
+  app
+    .route('/api/admin/newsletter-subscribers')
+    .all(adminPolicy.isAllowed)
+    .get(adminNewsletter.list);
 };

@@ -6,7 +6,7 @@
   <!-- tr-spinner will have `aria-busy` etc -->
   <tr-spinner size="sm"></tr-spinner>
   <br /><br />
-  <small aria-hidden="true">Wait a moment...</small>
+  <small aria-hidden="true">Wait a moment…</small>
 </div>
 
 <div ng-if="tribeCtrl.tribe && tribeCtrl.tribe.$resolved">
@@ -139,7 +139,7 @@
               <br /><br />
               <a
                 class="btn btn-lg btn-primary btn-action tribe-join"
-                ui-sref="signup({'circle': tribeCtrl.tribe.slug})"
+                ui-sref="signup({'tribe': tribeCtrl.tribe.slug})"
               >
                 Join {{::tribeCtrl.tribe.label}} on Trustroots
               </a>

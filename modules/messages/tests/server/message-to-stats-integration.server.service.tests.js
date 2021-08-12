@@ -4,14 +4,15 @@ const path = require('path');
 const _ = require('lodash');
 const sinon = require('sinon');
 const config = require(path.resolve('./config/config'));
-const User = mongoose.model('User');
 const EventEmitter = require('events');
 const influx = require('influx');
 const Promise = require('promise');
-const Message = mongoose.model('Message');
 const messageController = require(path.resolve(
   './modules/messages/server/controllers/messages.server.controller',
 ));
+const utils = require(path.resolve('./testutils/server/data.server.testutil'));
+
+const User = mongoose.model('User');
 
 describe('Message to Stats API server service Integration Test', function () {
   let reachEventEmitter;
@@ -79,12 +80,7 @@ describe('Message to Stats API server service Integration Test', function () {
     });
   });
 
-  // after each test removing all the messages and users (cleaning the database)
-  afterEach(function (done) {
-    Message.deleteMany().exec(function () {
-      User.deleteMany().exec(done);
-    });
-  });
+  afterEach(utils.clearDatabase);
 
   context('when a new message is sent', function () {
     // send the new message, do it synchronously
@@ -147,23 +143,23 @@ describe('Message to Stats API server service Integration Test', function () {
 
       it('the data should have a proper format', function (done) {
         // we want to call the listener only once
-        reachEventEmitter.once('reachedInfluxdb', function (
-          measurement,
-          points,
-        ) {
-          try {
-            measurement.should.equal('messageSent');
-            points.length.should.equal(1);
-            should.exist(points[0].fields);
-            should.exist(points[0].tags);
-            points[0].fields.should.have.property('messageLength');
-            points[0].tags.should.have.property('messageLengthType');
-            points[0].tags.should.have.property('position', 'first');
-            return done();
-          } catch (e) {
-            return done(e);
-          }
-        });
+        reachEventEmitter.once(
+          'reachedInfluxdb',
+          function (measurement, points) {
+            try {
+              measurement.should.equal('messageSent');
+              points.length.should.equal(1);
+              should.exist(points[0].fields);
+              should.exist(points[0].tags);
+              points[0].fields.should.have.property('messageLength');
+              points[0].tags.should.have.property('messageLengthType');
+              points[0].tags.should.have.property('position', 'first');
+              return done();
+            } catch (e) {
+              return done(e);
+            }
+          },
+        );
       });
     });
 

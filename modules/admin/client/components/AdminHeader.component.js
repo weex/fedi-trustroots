@@ -33,10 +33,19 @@ export default function AdminHeader() {
       path: 'acquisition-stories',
       label: 'Acquisition stories',
     },
+    {
+      path: 'newsletter',
+      label: 'Newsletter',
+    },
   ];
 
   const renderTab = ({ path, label }) => (
-    <li key={path} className={classnames({ active: currentPath === path })}>
+    <li
+      key={path}
+      className={classnames({
+        active: currentPath === path || currentPath.startsWith(`${path}/`),
+      })}
+    >
       <a href={`/admin/${path}`}>{label}</a>
     </li>
   );

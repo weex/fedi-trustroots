@@ -1,10 +1,12 @@
 const path = require('path');
 const should = require('should');
 const async = require('async');
+const mongoose = require('mongoose');
 const messageStatService = require(path.resolve(
   './modules/messages/server/services/message-stat.server.service',
 ));
-const mongoose = require('mongoose');
+const utils = require(path.resolve('./testutils/server/data.server.testutil'));
+
 const User = mongoose.model('User');
 const Message = mongoose.model('Message');
 const MessageStat = mongoose.model('MessageStat');
@@ -124,24 +126,7 @@ describe('Count Message Statistics of User', function () {
     );
   });
 
-  // clean the database after the tests
-  after(function (done) {
-    // remove all User, Message, MessageStat
-    async.parallel(
-      [
-        function (cb) {
-          User.deleteMany().exec(cb);
-        },
-        function (cb) {
-          Message.deleteMany().exec(cb);
-        },
-        function (cb) {
-          MessageStat.deleteMany().exec(cb);
-        },
-      ],
-      done,
-    );
-  });
+  after(utils.clearDatabase);
 
   it('[< 10 messages in last 90 days] should use 90 days', function (done) {
     messageStatService.readMessageStatsOfUser(
@@ -184,24 +169,25 @@ describe('Count Message Statistics of User', function () {
   });
 
   it('[> 10 messages in last 30 days] should use last 30 days', function (done) {
-    messageStatService.readMessageStatsOfUser(users[0]._id, NOW, function (
-      err,
-      stats,
-    ) {
-      // expected statistics values
-      // out of last month 6/12 messages are replied; all within 2 days
-      const expectedReplyRate = 6 / 12;
-      const expectedReplyTime = 2 * DAY;
+    messageStatService.readMessageStatsOfUser(
+      users[0]._id,
+      NOW,
+      function (err, stats) {
+        // expected statistics values
+        // out of last month 6/12 messages are replied; all within 2 days
+        const expectedReplyRate = 6 / 12;
+        const expectedReplyTime = 2 * DAY;
 
-      if (err) return done(err);
-      try {
-        should(stats).have.property('replyRate', expectedReplyRate);
-        should(stats).have.property('replyTime', expectedReplyTime);
-        return done();
-      } catch (e) {
-        return done(e);
-      }
-    });
+        if (err) return done(err);
+        try {
+          should(stats).have.property('replyRate', expectedReplyRate);
+          should(stats).have.property('replyTime', expectedReplyTime);
+          return done();
+        } catch (e) {
+          return done(e);
+        }
+      },
+    );
   });
 
   it('[no messages] reply rate and time should be null', function (done) {
@@ -316,23 +302,7 @@ describe('MessageStat Creation & Updating Test', function () {
     });
   });
 
-  afterEach(function (done) {
-    // clean User, Message, MessageStat
-    async.parallel(
-      [
-        function (cb) {
-          User.deleteMany().exec(cb);
-        },
-        function (cb) {
-          Message.deleteMany().exec(cb);
-        },
-        function (cb) {
-          MessageStat.deleteMany().exec(cb);
-        },
-      ],
-      done,
-    );
-  });
+  afterEach(utils.clearDatabase);
 
   describe('updateMessageStat', function () {
     context('First message in Thread', function () {
