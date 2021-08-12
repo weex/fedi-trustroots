@@ -18,9 +18,9 @@ function TribeService($resource, $q, $log) {
   let cachedTribe;
 
   const service = {
-    fillCache: fillCache,
-    clearCache: clearCache,
-    get: get,
+    fillCache,
+    clearCache,
+    get,
   };
 
   return service;
@@ -52,7 +52,7 @@ function TribeService($resource, $q, $log) {
    * Automatically clears cache after retreiving object from cache
    */
   function get(options) {
-    return $q(function(resolve, reject) {
+    return $q(function (resolve, reject) {
       if (
         angular.isUndefined(options) ||
         angular.isUndefined(options.tribeSlug) ||
@@ -69,10 +69,10 @@ function TribeService($resource, $q, $log) {
         Tribe.get({
           tribeSlug: options.tribeSlug,
         })
-          .$promise.then(function(tribe) {
+          .$promise.then(function (tribe) {
             resolve(tribe);
           })
-          .catch(function() {
+          .catch(function () {
             reject();
           });
       }

@@ -2,14 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function TribesJoinTrustroots() {
-  const { t } = useTranslation('tribes');
+  const { t } = useTranslation('circles');
 
   return (
     <div className="row">
       <div className="col-xs-12 text-center">
         <hr />
         <p className="lead">
-          {t('Join Trustroots to find members behind Tribes.')}
+          {t('Join Trustroots to find members behind circles.')}
         </p>
         <br />
         <br />

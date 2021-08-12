@@ -1,0 +1,37 @@
+{
+    "Accommodation": "Sistemazione",
+    "At most {{count}} guests": {
+        "At most {{count}} guests.": "Massimo{{count}}ospite.",
+        "At most {{count}} guests._plural": "Massimo{{count}}ospiti."
+    },
+    "Bigger map": "Mappa più grande",
+    "Can host": "Posso ospitare",
+    "Cannot host currently": "Non posso ospitare",
+    "Change": "Cambia",
+    "Hosting status: {{statusLabel}}": "",
+    "I can host": "Posso ospitare",
+    "I can't host currently": "Ora non posso ospitare",
+    "I might be able to host": "Forse posso ospitare",
+    "Meet people": "Incontra gente",
+    "Might be able to host": "Potrebbe accettare ospiti",
+    "Modify hosting offer": "Modifica offerta di ospitalità",
+    "No guests": {
+        "": "Nessun ospite."
+    },
+    "Offering hospitality and welcoming “strangers” to our homes strengthens our faith in each other": {
+        "": "Offrire ospitalità e accogliere \"stranieri\" a casa nostra rafforza la nostra fede negli altri."
+    },
+    "Open on device": "Apri sul dispositivo",
+    "Sorry, user is not hosting currently": {
+        "": "Spiacenti, l'utente non accetta ospiti al momento."
+    },
+    "Start hosting travellers": "Inizia a ospitare",
+    "At most {{count}} guests.": "Massimo un ospite.",
+    "At most {{count}} guests._plural": "Massimo {{count}} ospiti.",
+    "Send a message": "Manda un messaggio",
+    "Travelling? Organising an event? Just making a dinner and would like to invite people over?": "Stai viaggiando? Organizzi un evento? Stai giusto preparando la cena e vorresti invitare gente?",
+    "Just making a dinner and would like to invite people over?": "Stai giusto preparando la cena e vorresti invitare gente?",
+    "Travelling? Organising an event?": "Stai viaggiando? Organizzi un evento?",
+    "Meetups stay visible on map at most one month.": "Gli incontri rimangono visibili sulla mappa al massimo per un mese.",
+    "Add it to map!": "Aggiungi alla mappa!"
+}

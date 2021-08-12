@@ -1,7 +1,12 @@
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const webpack = require('webpack');
-const merge = require('webpack-merge');
+const webpackMerge = require('webpack-merge');
 const compact = require('lodash/compact');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+// When upgrading to Webpack 5, you might consider swapping this to `@automattic/webpack-rtl-plugin` (fork) because the original isn't maintained anymore
+const WebpackRTLPlugin = require('webpack-rtl-plugin');
 
 // This is very experimental library
 // There might be another favourite react-refresh webpack plugin at some point ...
@@ -33,13 +38,15 @@ const styleLoaders = [
   {
     loader: 'postcss-loader',
     options: {
-      ident: 'postcss',
-      plugins: [require('autoprefixer')()],
+      postcssOptions: {
+        plugins: [require('autoprefixer')],
+      },
+      sourceMap: isDevelopment,
     },
   },
 ];
 
-module.exports = merge(shims, {
+module.exports = webpackMerge.merge(shims, {
   mode: isProduction ? 'production' : 'development',
   devtool: isProduction ? 'source-map' : 'cheap-module-eval-source-map',
   entry: require.resolve('./entries/main'),
@@ -82,7 +89,16 @@ module.exports = merge(shims, {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: 'babel-loader',
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              plugins: [
+                isDevelopment && require.resolve('react-refresh/babel'),
+              ].filter(Boolean),
+            },
+          },
+        ],
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
@@ -94,7 +110,7 @@ module.exports = merge(shims, {
         },
       },
       {
-        test: /\.(png|jpe?g|gif|svg)$/,
+        test: /\.(png|jpe?g|gif|svg|webp)$/,
         use: [
           {
             loader: 'url-loader',
@@ -137,16 +153,22 @@ module.exports = merge(shims, {
     ],
   },
   plugins: compact([
+    config.bundleAnalyzer.enabled &&
+      new BundleAnalyzerPlugin(config.bundleAnalyzer.options),
     isProduction &&
       new MiniCssExtractPlugin({
         filename: 'main.css',
       }),
+    // @TODO: run RTL also on inlined CSS?
+    isProduction &&
+      new WebpackRTLPlugin({
+        diffOnly: true, // The stylesheet created will only contain the css that differs from the source stylesheet.
+        filename: 'main.rtl.css',
+        minify: isProduction,
+      }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     }),
-    isDevelopment &&
-      new ReactRefreshWebpackPlugin({
-        disableRefreshCheck: true,
-      }),
+    isDevelopment && new ReactRefreshWebpackPlugin(),
   ]),
 });

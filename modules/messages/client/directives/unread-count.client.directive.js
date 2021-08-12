@@ -19,7 +19,7 @@ function messagesUnreadCountDirective(PollMessagesCount, Authentication) {
     scope: true,
     template:
       '<span class="notification-badge" ng-show="unread > 0" ng-bind="unread" aria-label="{{unread}} unread messages" tabindex="0"></span>',
-    link: link,
+    link,
   };
 
   return directive;
@@ -39,7 +39,7 @@ function messagesUnreadCountDirective(PollMessagesCount, Authentication) {
     function activate() {
       if (!Authentication.user || !Authentication.user.public) {
         // If user wasn't authenticated or public, set up watch
-        const activationWatch = scope.$on('userUpdated', function() {
+        const activationWatch = scope.$on('userUpdated', function () {
           // Did user become public with that update?
           if (Authentication.user.public) {
             // Remove this watch

@@ -19,7 +19,6 @@ function AppController(
   SettingsFactory,
   Languages,
   locker,
-  PollMessagesCount,
   push,
   trNativeAppBridge,
 ) {
@@ -33,28 +32,12 @@ function AppController(
   vm.pageTitle = $window.title;
   vm.goHome = goHome;
   vm.signout = signout;
-  vm.onWindowBlur = onWindowBlur;
-  vm.onWindowFocus = onWindowFocus;
   vm.photoCredits = {};
   vm.photoCreditsCount = 0;
   vm.isFooterHidden = false;
   vm.isHeaderHidden = false;
   vm.isAboutPage = false;
-  vm.isNativeMobileApp = $window.isNativeMobileApp;
-
-  /**
-   * Handle the window blur event
-   */
-  function onWindowBlur() {
-    PollMessagesCount.setFrequency('low');
-  }
-
-  /**
-   * handle window focus event
-   */
-  function onWindowFocus() {
-    PollMessagesCount.setFrequency('high');
-  }
+  vm.isNativeMobileApp = trNativeAppBridge.isNativeMobileApp();
 
   // Default options for Medium-Editor directive used site wide
   // @link https://github.com/yabwe/medium-editor/blob/master/OPTIONS.md
@@ -223,7 +206,7 @@ function AppController(
     /**
      * Show "service unavailable" badge if http interceptor sends us this signal
      */
-    $rootScope.$on('serviceUnavailable', function() {
+    $rootScope.$on('serviceUnavailable', function () {
       $uibModal.open({
         ariaLabelledBy: 'Service unavailable',
         template:
@@ -243,14 +226,14 @@ function AppController(
     /**
      * Snif and apply user changes
      */
-    $scope.$on('userUpdated', function() {
+    $scope.$on('userUpdated', function () {
       vm.user = Authentication.user;
     });
 
     /**
      * Before page change
      */
-    $scope.$on('$stateChangeStart', function(event, toState, toParams) {
+    $scope.$on('$stateChangeStart', function (event, toState, toParams) {
       if (toState.requiresRole) {
         if (!Authentication.user) {
           toState.requiresAuth = true;
@@ -282,8 +265,6 @@ function AppController(
         // (Normally we just splash a signup page at this point)
         if (toState.name === 'profile') {
           $state.go('profile-signup');
-        } else if (toState.name === 'search' || toState.name === 'search.map') {
-          $state.go('search-signin', toParams || {});
         } else {
           // Or just continue to the signup page...
           $state.go('signin', { continue: true });
@@ -294,7 +275,7 @@ function AppController(
     /**
      * After page change
      */
-    $scope.$on('$stateChangeSuccess', function(event, toState) {
+    $scope.$on('$stateChangeSuccess', function (event, toState) {
       // Footer is hidden on these pages
       vm.isFooterHidden =
         angular.isDefined(toState.footerHidden) &&
@@ -304,9 +285,6 @@ function AppController(
       vm.isHeaderHidden =
         angular.isDefined(toState.headerHidden) &&
         toState.headerHidden === true;
-
-      // Indicate we are browsing primary landing page
-      vm.isHomePage = toState.name === 'home';
 
       // Reset photo copyrights on each page change
       // trBoards directive hits in after this and we'll fill this with potential photo credits
@@ -320,16 +298,16 @@ function AppController(
     /**
      * Sniff and apply photo credit changes
      */
-    $scope.$on('photoCreditsUpdated', function(scope, photo) {
+    $scope.$on('photoCreditsUpdated', function (scope, photo) {
       angular.extend(vm.photoCredits, photo);
-      vm.photoCreditsCount++;
+      vm.photoCreditsCount = Object.keys(vm.photoCredits).length;
     });
 
-    $scope.$on('photoCreditsRemoved', function(scope, photo) {
+    $scope.$on('photoCreditsRemoved', function (scope, photo) {
       const photoName = Object.keys(photo)[0];
       // @TODO inconsistent results when there is the same photo displayed multiple times
       delete vm.photoCredits[photoName];
-      vm.photoCreditsCount--;
+      vm.photoCreditsCount = Object.keys(vm.photoCredits).length;
     });
   }
 
@@ -363,7 +341,7 @@ function AppController(
       locker.clean();
     }
 
-    push.disable().finally(function() {
+    push.disable().finally(function () {
       // Do the signout and refresh the page
       $window.top.location.href = '/api/auth/signout';
     });

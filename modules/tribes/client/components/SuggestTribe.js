@@ -2,14 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function SuggestTribe() {
-  const { t } = useTranslation('tribes');
+  const { t } = useTranslation('circles');
 
   return (
     <div className="panel tribe text-center flex-centered">
       <p className="lead">
         <span className="icon-tribes icon-lg"></span>
         <br />
-        {t('Missing your Tribe?')}
+        {t('Missing your circle?')}
         <br />
         <br />
         <a

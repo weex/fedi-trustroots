@@ -19,14 +19,14 @@ const statistics = require(path.resolve(
 ));
 const log = require(path.resolve('./config/lib/logger'));
 
-module.exports = function(job, agendaDone) {
+module.exports = function (job, agendaDone) {
   let totalUserCount;
 
   async.waterfall(
     [
       // Member count
-      function(done) {
-        statistics.getUsersCount(function(err, count) {
+      function (done) {
+        statistics.getUsersCount(function (err, count) {
           if (err) {
             log('error', 'Daily statistics: failed fetching user count.', err);
             return done();
@@ -39,7 +39,7 @@ module.exports = function(job, agendaDone) {
             {
               namespace: 'members',
               values: {
-                count: count,
+                count,
               },
               tags: {
                 members: 'members',
@@ -51,8 +51,8 @@ module.exports = function(job, agendaDone) {
       },
 
       // Get number of users who have push notifications enabled
-      function(done) {
-        statistics.getPushRegistrationCount(function(err, count) {
+      function (done) {
+        statistics.getPushRegistrationCount(function (err, count) {
           if (err) {
             log(
               'error',
@@ -67,7 +67,7 @@ module.exports = function(job, agendaDone) {
             {
               namespace: 'pushRegistrations',
               values: {
-                count: count,
+                count,
               },
               tags: {
                 type: 'all',
@@ -78,7 +78,7 @@ module.exports = function(job, agendaDone) {
         });
       },
 
-      function(done) {
+      function (done) {
         collectLastSeen(
           { days: 7 },
           'memberLastSeenPast7days',
@@ -87,7 +87,7 @@ module.exports = function(job, agendaDone) {
         );
       },
 
-      function(done) {
+      function (done) {
         collectLastSeen(
           { days: 14 },
           'memberLastSeenPast14days',
@@ -96,7 +96,7 @@ module.exports = function(job, agendaDone) {
         );
       },
 
-      function(done) {
+      function (done) {
         collectLastSeen(
           { days: 30 },
           'memberLastSeenPast30days',
@@ -105,7 +105,7 @@ module.exports = function(job, agendaDone) {
         );
       },
 
-      function(done) {
+      function (done) {
         collectLastSeen(
           { months: 6 },
           'memberLastSeenPast6months',
@@ -114,7 +114,7 @@ module.exports = function(job, agendaDone) {
         );
       },
 
-      function(done) {
+      function (done) {
         collectLastSeen(
           { months: 12 },
           'memberLastSeenPast12months',
@@ -124,8 +124,8 @@ module.exports = function(job, agendaDone) {
       },
 
       // Hosting offer count
-      function(done) {
-        statistics.getHostOffersCount(function(err, hostOfferCounts) {
+      function (done) {
+        statistics.getHostOffersCount(function (err, hostOfferCounts) {
           if (err) {
             log(
               'error',
@@ -138,12 +138,12 @@ module.exports = function(job, agendaDone) {
           // Write numbers to stats
           async.eachOfSeries(
             hostOfferCounts,
-            function(count, offerStatus, doneStatus) {
+            function (count, offerStatus, doneStatus) {
               writeDailyStat(
                 {
                   namespace: 'offers',
                   values: {
-                    count: count,
+                    count,
                     percentage: (count / totalUserCount) * 100,
                   },
                   tags: {
@@ -160,8 +160,8 @@ module.exports = function(job, agendaDone) {
       },
 
       // Meet offer count
-      function(done) {
-        statistics.getMeetOffersCount(function(err, count) {
+      function (done) {
+        statistics.getMeetOffersCount(function (err, count) {
           if (err) {
             log('error', 'Daily statistics: failed fetching meet count.', err);
             return done();
@@ -172,7 +172,7 @@ module.exports = function(job, agendaDone) {
             {
               namespace: 'offers',
               values: {
-                count: count,
+                count,
               },
               tags: {
                 type: 'meet',
@@ -184,7 +184,7 @@ module.exports = function(job, agendaDone) {
       },
 
       // Connected to networks counters
-      function(done) {
+      function (done) {
         const networks = [
           'couchsurfing',
           'warmshowers',
@@ -197,9 +197,9 @@ module.exports = function(job, agendaDone) {
         // Loop trough each network in series
         async.eachSeries(
           networks,
-          function(networkName, doneNetwork) {
+          function (networkName, doneNetwork) {
             // Get count for this network
-            statistics.getExternalSiteCount(networkName, function(err, count) {
+            statistics.getExternalSiteCount(networkName, function (err, count) {
               if (err) {
                 log(
                   'error',
@@ -216,7 +216,7 @@ module.exports = function(job, agendaDone) {
                 {
                   namespace: 'membersInNetworks',
                   values: {
-                    count: count,
+                    count,
                     percentage: (count / totalUserCount) * 100,
                   },
                   tags: {
@@ -230,8 +230,43 @@ module.exports = function(job, agendaDone) {
           done,
         );
       },
+
+      // Get statistics for top 40 spoken languages
+      function (done) {
+        statistics.getUserLanguagesCount(40, function (err, languageCounts) {
+          if (err) {
+            log(
+              'error',
+              'Daily statistics: failed fetching spoken languages counts.',
+              err,
+            );
+            return done();
+          }
+
+          // Write numbers to stats
+          async.eachOfSeries(
+            languageCounts,
+            function ({ _id, count }, index, doneLanguage) {
+              writeDailyStat(
+                {
+                  namespace: 'language',
+                  values: {
+                    count,
+                    percentage: (count / totalUserCount) * 100,
+                  },
+                  tags: {
+                    language: _id,
+                  },
+                },
+                doneLanguage,
+              );
+            },
+            done,
+          );
+        });
+      },
     ],
-    function(err) {
+    function (err) {
       if (err) {
         log('error', 'Daily statistics error', err);
       }
@@ -249,7 +284,7 @@ module.exports = function(job, agendaDone) {
 function writeDailyStat(statObject, callback) {
   // Save to influx and stathat via Stats api
   // eslint-disable-next-line no-unused-vars
-  statsService.stat(statObject, function(err, result) {
+  statsService.stat(statObject, function (err, result) {
     // Log errors
     if (err) {
       // if there exist stat-service specific errors, log them separately
@@ -289,15 +324,15 @@ function writeDailyStat(statObject, callback) {
  * Collect Last Seen Stats
  */
 function collectLastSeen(seenSinceDays, namespace, totalUserCount, callback) {
-  statistics.getLastSeenStatistic(seenSinceDays, function(err, count) {
+  statistics.getLastSeenStatistic(seenSinceDays, function (err, count) {
     if (err) {
       return callback(err);
     }
     writeDailyStat(
       {
-        namespace: namespace,
+        namespace,
         values: {
-          count: count,
+          count,
           percentage: (count / totalUserCount) * 100,
         },
         tags: {

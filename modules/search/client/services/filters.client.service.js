@@ -11,7 +11,7 @@ function FiltersService($log, Authentication, locker) {
     types: ['host', 'meet'],
     languages: [],
     seen: {
-      months: 24,
+      months: 6,
     },
   };
 
@@ -32,8 +32,8 @@ function FiltersService($log, Authentication, locker) {
   filters = angular.extend(defaultFilters, filters);
 
   const service = {
-    set: set,
-    get: get,
+    set,
+    get,
   };
 
   return service;

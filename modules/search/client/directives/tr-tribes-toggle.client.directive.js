@@ -49,7 +49,7 @@ function trTribesToggleDirective(TribesService) {
      */
     function activate() {
       if ($scope.tribeIds && $scope.tribeIds.length) {
-        angular.forEach($scope.tribeIds, function(tribeId) {
+        angular.forEach($scope.tribeIds, function (tribeId) {
           vm.toggles[tribeId] = true;
         });
       }
@@ -61,7 +61,7 @@ function trTribesToggleDirective(TribesService) {
      */
     function onToggleChange() {
       const TribeIds = [];
-      angular.forEach(vm.toggles, function(active, tribeId) {
+      angular.forEach(vm.toggles, function (active, tribeId) {
         if (active) TribeIds.push(tribeId);
       });
       // Tell tribeIds $watch that we changed `$scope.TribeIds`
@@ -74,27 +74,27 @@ function trTribesToggleDirective(TribesService) {
      * Receives an array of tribes id's from outside the directive
      * and toggles them active within this directive
      */
-    $scope.$watchCollection('tribeIds', function tribeIdsWatch(
-      newTribeIds,
-      oldTribeIds,
-    ) {
-      if (!angular.equals(newTribeIds, oldTribeIds)) {
-        // `$scope.tribeIds` was changed by onToggleChange function
-        // thus don't go trough toggle switches as they're already correct
-        if (ignoreToggles) {
-          ignoreToggles = false;
-          return;
-        }
+    $scope.$watchCollection(
+      'tribeIds',
+      function tribeIdsWatch(newTribeIds, oldTribeIds) {
+        if (!angular.equals(newTribeIds, oldTribeIds)) {
+          // `$scope.tribeIds` was changed by onToggleChange function
+          // thus don't go trough toggle switches as they're already correct
+          if (ignoreToggles) {
+            ignoreToggles = false;
+            return;
+          }
 
-        // Clear all previous toggles
-        vm.toggles = {};
-        if (newTribeIds && newTribeIds.length) {
-          // Loop trough new values and set toggles on for requested tribes
-          angular.forEach(newTribeIds, function(tribeId) {
-            vm.toggles[tribeId] = true;
-          });
+          // Clear all previous toggles
+          vm.toggles = {};
+          if (newTribeIds && newTribeIds.length) {
+            // Loop trough new values and set toggles on for requested tribes
+            angular.forEach(newTribeIds, function (tribeId) {
+              vm.toggles[tribeId] = true;
+            });
+          }
         }
-      }
-    });
+      },
+    );
   }
 }

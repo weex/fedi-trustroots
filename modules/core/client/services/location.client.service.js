@@ -1,3 +1,5 @@
+import { DEFAULT_LOCATION } from '@/modules/core/client/utils/constants';
+
 /**
  * Service for querying MapBox geocoder
  */
@@ -7,19 +9,12 @@ angular.module('core').factory('LocationService', LocationService);
 function LocationService($log, $http, SettingsFactory) {
   const appSettings = SettingsFactory.get();
 
-  // Defaults location to be used with maps (Europe)
-  const defaultLocation = {
-    lat: 48.6908333333,
-    lng: 9.14055555556,
-    zoom: 6,
-  };
-
   const service = {
-    getDefaultLocation: getDefaultLocation,
-    getBounds: getBounds,
-    getCenter: getCenter,
-    shortTitle: shortTitle,
-    suggestions: suggestions,
+    getDefaultLocation,
+    getBounds,
+    getCenter,
+    shortTitle,
+    suggestions,
   };
 
   /**
@@ -35,9 +30,8 @@ function LocationService($log, $http, SettingsFactory) {
    */
   function getDefaultLocation(zoom) {
     return {
-      lat: defaultLocation.lat,
-      lng: defaultLocation.lng,
-      zoom: parseInt(zoom || defaultLocation.zoom, 10),
+      ...DEFAULT_LOCATION,
+      zoom: parseInt(zoom || DEFAULT_LOCATION.zoom, 10),
     };
   }
 
@@ -176,13 +170,13 @@ function LocationService($log, $http, SettingsFactory) {
           ignoreLoadingBar: true,
         },
       )
-      .then(function(response) {
+      .then(function (response) {
         if (
           response.status === 200 &&
           response.data.features &&
           response.data.features.length > 0
         ) {
-          return response.data.features.map(function(geolocation) {
+          return response.data.features.map(function (geolocation) {
             geolocation.trTitle = shortTitle(geolocation);
             return geolocation;
           });

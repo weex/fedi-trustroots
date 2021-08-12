@@ -1,8 +1,9 @@
 const semver = require('semver');
 
 // Converts semver range `~16.6.0` to strict version `16.6.0`
-const reactVersion = semver.coerce(require('./package.json').dependencies.react)
-  .version;
+const reactVersion = semver.coerce(
+  require('./package.json').dependencies.react,
+).version;
 
 const rules = {
   'comma-dangle': [2, 'always-multiline'],
@@ -24,6 +25,7 @@ const rules = {
   'no-unused-expressions': 0,
   'no-use-before-define': [1, 'nofunc'],
   'object-curly-spacing': [2, 'always'],
+  'object-shorthand': 2,
   'one-var': [2, 'never'],
   'one-var-declaration-per-line': [2, 'always'],
   semi: [2, 'always'],
@@ -40,13 +42,7 @@ const rules = {
 };
 
 module.exports = {
-  extends: [
-    'eslint:recommended',
-    'plugin:import/errors',
-    // Make sure these Prettier ones are last items on this list
-    'plugin:prettier/recommended',
-    'prettier/babel',
-  ],
+  extends: ['eslint:recommended', 'plugin:import/errors', 'prettier'],
   rules,
   plugins: ['angular', 'react', 'import', 'prettier'],
   settings: {
@@ -115,12 +111,12 @@ module.exports = {
         'angular/no-directive-replace': 0,
         'angular/no-http-callback': 2,
         'angular/angularelement': 2,
-        'angular/definedundefined': 2,
-        'angular/document-service': 2,
-        'angular/interval-service': 2,
+        'angular/definedundefined': 0,
+        'angular/document-service': 0,
+        'angular/interval-service': 0,
         'angular/json-functions': 2,
         'angular/log': 1,
-        'angular/timeout-service': 2,
+        'angular/timeout-service': 0,
         'angular/typecheck-array': 2,
         'angular/typecheck-date': 2,
         'angular/typecheck-function': 2,
@@ -141,8 +137,6 @@ module.exports = {
         AppConfig: true,
         L: true,
         moment: true,
-        PruneCluster: true,
-        PruneClusterForLeaflet: true,
       },
       parser: 'babel-eslint',
       parserOptions: {
@@ -163,18 +157,12 @@ module.exports = {
         'modules/**/client/api/**',
         'modules/**/client/utils/**',
         'modules/core/client/services/photos.service.js',
-        'modules/references/tests/client/**',
+        'modules/experiences/tests/client/**',
       ],
       env: {
         browser: true,
       },
-      extends: [
-        'plugin:react/recommended',
-        // Make sure these Prettier ones are last items on this list
-        'plugin:prettier/recommended',
-        'prettier/react',
-        'prettier/babel',
-      ],
+      extends: ['plugin:react/recommended', 'prettier'],
       settings: {
         react: {
           version: reactVersion,
@@ -207,9 +195,7 @@ module.exports = {
         'plugin:react/recommended',
         'plugin:testing-library/react',
         'plugin:jest-dom/recommended',
-        // Make sure these Prettier ones are last items on this list
         'prettier',
-        'prettier/react',
       ],
       settings: {
         react: {

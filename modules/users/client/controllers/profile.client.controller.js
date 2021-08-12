@@ -22,17 +22,18 @@ function ProfileController(
   vm.profile = profile;
   vm.contact = contact;
   vm.contacts = contacts;
+  vm.initialPathName = $state.current.name;
 
   /**
    * Remove contact via React RemoveContact component
    */
-  vm.removeContact = function(contact) {
+  vm.removeContact = function (contact) {
     vm.contacts.splice(vm.contacts.indexOf(contact), 1);
 
     // @TODO a hacky solution to remove the contact from vm.contact and keep its "promise" resolved
     // if we just delete vm.contact, the angular app will be confused
     if (vm.contact && vm.contact._id === contact._id) {
-      Object.keys(contact).forEach(function(key) {
+      Object.keys(contact).forEach(function (key) {
         if (!(key === '$promise' || key === '$resolved')) {
           delete contact[key];
         }
@@ -52,7 +53,7 @@ function ProfileController(
       // If we're on small screens, direct to `overview` tab instead
       if ($state.current.name === 'profile.about') {
         // Timeout ensures `ui-sref-active=""` gets updated at the templates
-        $timeout(function() {
+        $timeout(function () {
           $state.go('profile.overview', { username: profile.username });
         }, 25);
       }
@@ -77,7 +78,7 @@ function ProfileController(
      * When contact removal modal signals that the contact was removed, remove it from this scope as well
      * @todo: any better way to keep vm.contact $resolved but wipe out the actual content?
      */
-    $scope.$on('contactRemoved', function() {
+    $scope.$on('contactRemoved', function () {
       if (vm.contact) {
         delete vm.contact._id;
       }

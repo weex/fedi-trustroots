@@ -39,6 +39,20 @@ function AdminRoutes($stateProvider) {
         pageTitle: 'Admin - Acquisition stories',
       },
     })
+    .state('admin-acquisition-stories-analysis', {
+      url: '/admin/acquisition-stories/analysis',
+      // `template` is Angular state so
+      // it should be lowercase, with dashes
+      // This is the bridge towards (and from) React
+      template:
+        '<admin-acquisition-stories-analysis></admin-acquisition-stories-analysis>',
+      requiresRole: 'admin',
+      requiresAuth: true,
+      footerHidden: true,
+      data: {
+        pageTitle: 'Admin - Acquisition stories analysis',
+      },
+    })
     .state('admin-messages', {
       url: '/admin/messages',
       // `template` is Angular state so
@@ -89,6 +103,32 @@ function AdminRoutes($stateProvider) {
       footerHidden: true,
       data: {
         pageTitle: 'Admin - User',
+      },
+    })
+    .state('admin-reference-threads', {
+      url: '/admin/reference-threads',
+      // `template` is Angular state so
+      // it should be lowercase, with dashes
+      // This is the bridge towards (and from) React
+      template: '<admin-reference-threads></admin-reference-threads>',
+      requiresRole: 'admin',
+      requiresAuth: true,
+      footerHidden: true,
+      data: {
+        pageTitle: 'Admin - Reference threads',
+      },
+    })
+    .state('admin-newsletter', {
+      url: '/admin/newsletter',
+      // `template` is Angular state so
+      // it should be lowercase, with dashes
+      // This is the bridge towards (and from) React
+      template: '<admin-newsletter></admin-newsletter>',
+      requiresRole: 'admin',
+      requiresAuth: true,
+      footerHidden: true,
+      data: {
+        pageTitle: 'Admin - Newsletter',
       },
     });
 }

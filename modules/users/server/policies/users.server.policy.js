@@ -13,7 +13,7 @@ acl = new acl(new acl.memoryBackend());
 /**
  * Invoke Users Permissions
  */
-exports.invokeRolesPolicies = function() {
+exports.invokeRolesPolicies = function () {
   acl.allow([
     {
       roles: ['admin'],
@@ -65,6 +65,10 @@ exports.invokeRolesPolicies = function() {
         },
         {
           resources: '/api/users/:username',
+          permissions: ['get'],
+        },
+        {
+          resources: '/api/users/:avatarUserId/avatar',
           permissions: ['get'],
         },
         {
@@ -124,21 +128,12 @@ exports.invokeRolesPolicies = function() {
           permissions: ['delete'],
         },
         {
-          resources: '/api/users/invitecode',
+          resources: '/api/blocked-users',
           permissions: ['get'],
         },
         {
-          resources: '/api/users/invitecode/:invitecode',
-          permissions: ['post'],
-        },
-      ],
-    },
-    {
-      roles: ['guest'],
-      allows: [
-        {
-          resources: '/api/users/invitecode/:invitecode',
-          permissions: ['post'],
+          resources: '/api/blocked-users/:username',
+          permissions: ['put', 'delete'],
         },
       ],
     },
@@ -148,7 +143,7 @@ exports.invokeRolesPolicies = function() {
 /**
  * Check If Users Policy Allows
  */
-exports.isAllowed = function(req, res, next) {
+exports.isAllowed = function (req, res, next) {
   // Non-public profiles are invisible
   if (
     req.profile &&
@@ -179,7 +174,7 @@ exports.isAllowed = function(req, res, next) {
     roles,
     req.route.path,
     req.method.toLowerCase(),
-    function(err, isAllowed) {
+    function (err, isAllowed) {
       if (err) {
         // An authorization error occurred
         return res.status(500).json({

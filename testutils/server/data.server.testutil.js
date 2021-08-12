@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 
 const {
   generateUsers,
-  generateReferences,
+  generateExperiences,
 } = require('../common/data.common.testutil');
 
 /**
@@ -48,14 +48,14 @@ async function saveUsers(_docs, done = () => {}) {
 
 /**
  * save references to database calls callback if provided and returns Promise with saved documents
- * @param {Reference[]} _docs - Reference documents to save
+ * @param {Experience[]} _docs - Experience documents to save
  * @param {callback} [done] - optional callback
- * @returns {Promise<Reference[]>}
+ * @returns {Promise<Experience[]>}
  * the callback support can be removed when the whole codebase is migrated to ES6
  */
-async function saveReferences(_docs, done = () => {}) {
+async function saveExperiences(_docs, done = () => {}) {
   try {
-    const docs = await saveDocumentsToCollection('Reference', _docs);
+    const docs = await saveDocumentsToCollection('Experience', _docs);
     done(null, docs);
     return docs;
   } catch (e) {
@@ -65,32 +65,17 @@ async function saveReferences(_docs, done = () => {}) {
 }
 
 /**
- * Clear specified database collections
- * @param {string[]} collections - array of collection names to have all documents removed
- * @returns {Promise<void>}
- */
-async function clearDatabaseCollections(collections) {
-  const models = collections.map(collection => mongoose.model(collection));
-
-  for (const Model of models) {
-    await Model.deleteMany().exec();
-  }
-}
-
-/**
- * This is a list of the collections to clear
- * The new collections should be added as needed
- * Eventually this list shall become complete
- */
-const collections = ['User', 'Reference'];
-
-/**
  * Clear all collections in a database
  * Usage in mocha: afterEach(clearDatabase)
  * @returns {Promise<void>}
  */
 async function clearDatabase() {
-  await clearDatabaseCollections(collections);
+  const collections = mongoose.modelNames();
+  const models = collections.map(collection => mongoose.model(collection));
+
+  for (const Model of models) {
+    await Model.deleteMany().exec();
+  }
 }
 
 /**
@@ -103,10 +88,7 @@ async function clearDatabase() {
  */
 async function signIn(user, agent) {
   const { username, password } = user;
-  await agent
-    .post('/api/auth/signin')
-    .send({ username, password })
-    .expect(200);
+  await agent.post('/api/auth/signin').send({ username, password }).expect(200);
 }
 
 /**
@@ -121,8 +103,8 @@ async function signOut(agent) {
 module.exports = {
   generateUsers,
   saveUsers,
-  generateReferences,
-  saveReferences,
+  generateExperiences,
+  saveExperiences,
   clearDatabase,
   signIn,
   signOut,

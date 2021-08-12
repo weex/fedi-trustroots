@@ -22,19 +22,28 @@
   }
 
   .nav {
-
     // Fix, because we don't have normal Bootstrap collapsable menu
     > li {
       float: left;
     }
 
     a {
-      text-shadow: 1px 1px 1px rgba(0,0,0,.3);
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+    }
+
+    .dropdown-header {
+      cursor: auto;
     }
 
     .dropdown-menu {
       a {
         text-shadow: none;
+        &[role='menuitem']:active,
+        &[role='menuitem']:focus {
+          outline: none;
+          color: @navbar-default-color;
+          background: @brand-primary;
+        }
       }
     }
 
@@ -50,7 +59,6 @@
         text-shadow: none;
       }
     }
-
   }
 
   .nav-header-primary {
@@ -65,10 +73,12 @@
 
   /* Bootstrap dropdowns */
   @media (min-width: @grid-float-breakpoint) {
-
     /* Make Bootstrap dropdowns open at hover */
-    .dropdown:hover:not(.disable-hover-display) .dropdown-menu {
-      display: block;
+    .dropdown:hover,
+    .dropdown:focus {
+      &:not(.disable-hover-display) .dropdown-menu {
+        display: block;
+      }
     }
 
     /* Make sure avatar works as a dropdown handle */
@@ -81,7 +91,6 @@
         }
       }
     }
-
   }
 }
 

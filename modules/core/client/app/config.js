@@ -36,8 +36,6 @@ import 'angular-chosen-localytics/dist/angular-chosen.js';
 
 import ngreact from 'ngreact';
 
-import 'angular-waypoints/dist/angular-waypoints.all';
-
 // eslint-disable-next-line angular/window-service
 const SENTRY_DSN = window.SENTRY_DSN;
 
@@ -45,10 +43,10 @@ if (SENTRY_DSN) {
   require('@/config/client/sentry').init(SENTRY_DSN);
 }
 
-// Init the application configuration module for AngularJS application
-// Init module configuration options
-// When testing, `window.env` is undefined, thus default to 'test'
-// eslint-disable-next-line angular/window-service
+/**
+ * Init the application configuration module for AngularJS application
+ * Init module configuration options
+ */
 const appEnv = process.env.NODE_ENV || 'test';
 
 const appModuleName = 'trustroots';
@@ -66,7 +64,6 @@ const appModuleVendorDependencies = compact([
   'nemLogging',
   'ui-leaflet',
   ngFileUpload,
-  'zumba.angular-waypoints',
   'localytics.directives',
   'angular-loading-bar',
   trTrustpass,
@@ -96,7 +93,7 @@ if (appEnv === 'production') {
 }
 
 // Add a new vertical module
-const registerModule = function(moduleName, dependencies) {
+const registerModule = function (moduleName, dependencies) {
   // Create angular module
   angular.module(moduleName, dependencies || []);
 

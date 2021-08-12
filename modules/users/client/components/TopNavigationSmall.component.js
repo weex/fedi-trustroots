@@ -24,7 +24,7 @@ export default function TopNavigationSmall({
 
   const [showRemoveModal, setShowRemoveModal] = useState(false);
 
-  const { t } = useTranslation('user');
+  const { t } = useTranslation('users');
 
   const isSelf = selfId === userId;
 
@@ -48,9 +48,9 @@ export default function TopNavigationSmall({
 
     if (referencesEnabled) {
       links.push({
-        id: 'write-reference',
-        label: t('Write a reference'),
-        link: `/profile/${username}/references/new`,
+        id: 'share-experience',
+        label: t('Share your experience'),
+        link: `/profile/${username}/experiences/new`,
       });
     }
 

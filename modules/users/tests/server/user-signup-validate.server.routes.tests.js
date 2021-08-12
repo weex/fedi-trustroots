@@ -2,9 +2,11 @@ const should = require('should');
 const request = require('supertest');
 const path = require('path');
 const mongoose = require('mongoose');
-const User = mongoose.model('User');
 const express = require(path.resolve('./config/lib/express'));
 const config = require(path.resolve('./config/config'));
+const utils = require(path.resolve('./testutils/server/data.server.testutil'));
+
+const User = mongoose.model('User');
 
 /**
  * Globals
@@ -18,7 +20,7 @@ function validationFailure(object, error, message, done) {
     .post('/api/auth/signup/validate')
     .send(object)
     .expect(200)
-    .end(function(validateErr, validateRes) {
+    .end(function (validateErr, validateRes) {
       // Handle error
       if (validateErr) {
         return done(validateErr);
@@ -37,7 +39,7 @@ function validationSuccess(object, done) {
     .post('/api/auth/signup/validate')
     .send(object)
     .expect(200)
-    .end(function(validateErr, validateRes) {
+    .end(function (validateErr, validateRes) {
       // Handle error
       if (validateErr) {
         return done(validateErr);
@@ -54,8 +56,8 @@ function validationSuccess(object, done) {
 /**
  * User routes tests
  */
-describe('User signup validation CRUD tests', function() {
-  before(function(done) {
+describe('User signup validation CRUD tests', function () {
+  before(function (done) {
     // Get application
     app = express.init(mongoose.connection);
     agent = request.agent(app);
@@ -63,8 +65,10 @@ describe('User signup validation CRUD tests', function() {
     done();
   });
 
-  describe('Username validation', function() {
-    it('should show an error when missing username info', function(done) {
+  afterEach(utils.clearDatabase);
+
+  describe('Username validation', function () {
+    it('should show an error when missing username info', function (done) {
       validationFailure(
         {},
         'username-missing',
@@ -73,7 +77,7 @@ describe('User signup validation CRUD tests', function() {
       );
     });
 
-    it('should show an error when validating taken username', function(done) {
+    it('should show an error when validating taken username', function (done) {
       // Create an user
       user = new User({
         public: true,
@@ -86,7 +90,7 @@ describe('User signup validation CRUD tests', function() {
         password: 'TR-I$Aw3$0m4',
         provider: 'local',
       });
-      user.save(function() {
+      user.save(function () {
         validationFailure(
           { username: 'taken_username' },
           'username-not-available',
@@ -96,7 +100,7 @@ describe('User signup validation CRUD tests', function() {
       });
     });
 
-    it('should show an error when try to validate with not allowed username', function(done) {
+    it('should show an error when try to validate with not allowed username', function (done) {
       validationFailure(
         {
           username:
@@ -110,10 +114,10 @@ describe('User signup validation CRUD tests', function() {
       );
     });
 
-    describe('Username is in invalid format', function() {
+    describe('Username is in invalid format', function () {
       const invalidMessage = 'Username is in invalid format.';
 
-      it('should show error to validate username beginning with "." (dot)', function(done) {
+      it('should show error to validate username beginning with "." (dot)', function (done) {
         validationFailure(
           { username: '.login' },
           'username-invalid',
@@ -122,7 +126,7 @@ describe('User signup validation CRUD tests', function() {
         );
       });
 
-      it('should show error to validate username end with "." (dot)', function(done) {
+      it('should show error to validate username end with "." (dot)', function (done) {
         validationFailure(
           { username: 'login.' },
           'username-invalid',
@@ -131,7 +135,7 @@ describe('User signup validation CRUD tests', function() {
         );
       });
 
-      it('should show error to validate username with ..', function(done) {
+      it('should show error to validate username with ..', function (done) {
         validationFailure(
           { username: 'log..in' },
           'username-invalid',
@@ -140,7 +144,7 @@ describe('User signup validation CRUD tests', function() {
         );
       });
 
-      it('should show error to validate username shorter than 3 character', function(done) {
+      it('should show error to validate username shorter than 3 character', function (done) {
         validationFailure(
           { username: 'lo' },
           'username-invalid',
@@ -149,7 +153,7 @@ describe('User signup validation CRUD tests', function() {
         );
       });
 
-      it('should show error validating a username without at least one alphanumeric character', function(done) {
+      it('should show error validating a username without at least one alphanumeric character', function (done) {
         validationFailure(
           { username: '-_-' },
           'username-invalid',
@@ -158,7 +162,7 @@ describe('User signup validation CRUD tests', function() {
         );
       });
 
-      it('should show error validating a username longer than 34 characters', function(done) {
+      it('should show error validating a username longer than 34 characters', function (done) {
         validationFailure(
           { username: 'l'.repeat(35) },
           'username-invalid',
@@ -168,14 +172,10 @@ describe('User signup validation CRUD tests', function() {
       });
     });
 
-    describe('Username is valid', function() {
-      it('should validate username with dot in the middle', function(done) {
+    describe('Username is valid', function () {
+      it('should validate username with dot in the middle', function (done) {
         validationSuccess({ username: 'log.in' }, done);
       });
     });
-  });
-
-  afterEach(function(done) {
-    User.deleteMany().exec(done);
   });
 });

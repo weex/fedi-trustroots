@@ -43,6 +43,11 @@ this is a fallback when the contacts are loading
 ></bottom-navigation-small>
 
 <section class="container container-spacer profile-view">
+  <blocked-member-banner
+    username="profileCtrl.profile.username"
+    ng-if="app.user.blocked.includes(profileCtrl.profile._id)"
+  ></blocked-member-banner>
+
   <!-- Loading -->
   <div
     class="row content-wait"
@@ -51,37 +56,18 @@ this is a fallback when the contacts are loading
     aria-live="assertive"
     ng-if="profileCtrl.profile && !profileCtrl.profile.$resolved"
   >
-    <small>Wait a moment...</small>
+    <small>Wait a moment…</small>
   </div>
 
   <!-- Couldn't find profile... -->
-  <div
-    class="row text-center"
-    aria-role="alert"
+  <user-does-not-exist
     ng-if="!profileCtrl.profile.username && profileCtrl.profile.$resolved && app.user.public !== false"
-  >
-    <h1>Don't panic!</h1>
-    <em class="lead">User does not exist.</em>
-    <br /><br />
-    <a ui-sref="search.map">Continue...</a>
-  </div>
+  ></user-does-not-exist>
 
   <!-- Own profile is non-public -->
-  <div
-    class="row text-center"
-    aria-role="alert"
+  <confirm-email-notification
     ng-if="app.user.username === profileCtrl.profile.username && profileCtrl.profile.$resolved && app.user.public === false"
-  >
-    <em class="lead"
-      >Note that your profile will not be visible to others until you confirm
-      your email.</em
-    >
-    <p>
-      If you didn't receive the message, check your spam folder or resend it via
-      <a ui-sref="profile-edit.account">email settings</a>.
-    </p>
-    <hr />
-  </div>
+  ></confirm-email-notification>
 
   <!-- Profile -->
   <div ng-if="profileCtrl.profile.username && profileCtrl.profile.$resolved">
@@ -176,10 +162,10 @@ this is a fallback when the contacts are loading
               </li>
               <li ng-if="app.appSettings.referencesEnabled">
                 <a
-                  ui-sref="profile.references.new({username: profileCtrl.profile.username})"
+                  ui-sref="profile.experiences.new({username: profileCtrl.profile.username})"
                 >
                   <i class="icon-plus-squared-alt"></i>
-                  Write a reference
+                  Share your experience
                 </a>
               </li>
               <li>
@@ -220,50 +206,14 @@ this is a fallback when the contacts are loading
         <!-- Profile content tabs -->
         <div class="row">
           <div class="col-xs-12">
-            <div class="profile-tabs hidden-xs" role="navigation">
-              <ul
-                class="nav panel panel-default nav-pills nav-narrow nav-underline"
-                role="tablist"
-              >
-                <li ui-sref-active="active" role="presentation">
-                  <a ui-sref="profile.about" role="tab">About</a>
-                </li>
-                <li
-                  ui-sref-active="active"
-                  ng-if="profileCtrl.contacts.length || profileCtrl.profile._id === app.user._id"
-                  role="presentation"
-                >
-                  <a ui-sref="profile.contacts" role="tab">
-                    <span aria-hidden="true">Contacts</span>
-                    <span
-                      class="badge"
-                      aria-hidden="true"
-                      ng-bind="profileCtrl.contacts.length"
-                    ></span>
-                    <span class="sr-only">
-                      {{profileCtrl.contacts.length}} Contacts
-                    </span>
-                  </a>
-                </li>
-                <li
-                  ui-sref-active="active"
-                  role="presentation"
-                  ng-if="app.appSettings.referencesEnabled"
-                >
-                  <a ui-sref="profile.references.list" role="tab">
-                    <span aria-hidden="true">References</span>
-                    <span
-                      class="badge"
-                      aria-hidden="true"
-                      ng-bind="profileCtrl.referencesCount || 0"
-                    ></span>
-                    <span class="sr-only">
-                      {{profileCtrl.referencesCount || 0}} References
-                    </span>
-                  </a>
-                </li>
-              </ul>
-            </div>
+            <profile-tabs
+              contacts-count="profileCtrl.contacts.length || 0"
+              initial-path-name="profileCtrl.initialPathName"
+              is-experiences-enabled="app.appSettings.referencesEnabled"
+              is-own-profile="profileCtrl.profile._id === app.user._id"
+              user-id="profileCtrl.profile._id"
+              username="profileCtrl.profile.username"
+            ></profile-tabs>
             <div ui-view></div>
           </div>
         </div>

@@ -56,7 +56,9 @@
                       <span>Yes</span>
                     </label>
                     <label
-                      class="btn btn-lg btn-offer-hosting btn-offer-hosting-maybe"
+                      class="
+                        btn btn-lg btn-offer-hosting btn-offer-hosting-maybe
+                      "
                       ng-model="offerHostEdit.offer.status"
                       role="radio"
                       aria-checked="{{ offerHostEdit.offer.status === 'maybe' }}"
@@ -103,7 +105,12 @@
                       aria-required="true"
                       ng-disabled="!offerHostEdit.offer"
                       ng-model="offerHostEdit.offer.maxGuests"
-                      class="form-control input-lg input-plain text-center font-brand-regular"
+                      class="
+                        form-control
+                        input-lg input-plain
+                        text-center
+                        font-brand-regular
+                      "
                       maxlength="2"
                       min="1"
                       max="99"
@@ -122,6 +129,24 @@
                         <i class="icon-plus"></i>
                       </button>
                     </span>
+                  </div>
+                </fieldset>
+
+                <br /><br />
+
+                <fieldset ng-if="offerHostEdit.offer.status !== 'no'">
+                  <legend>
+                    <h4>Available only in my circles?</h4>
+                  </legend>
+                  <div class="checkbox">
+                    <label>
+                      <input
+                        type="checkbox"
+                        ng-model="offerHostEdit.offer.showOnlyInMyCircles"
+                      />
+                      People that are not in any of my circles should not find
+                      me.
+                    </label>
                   </div>
                 </fieldset>
               </div>

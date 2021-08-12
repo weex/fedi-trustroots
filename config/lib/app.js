@@ -6,16 +6,20 @@ const mongoose = require('./mongoose');
 const express = require('./express');
 const chalk = require('chalk');
 const Sentry = require('@sentry/node');
+const Tracing = require('@sentry/tracing');
 
 if (config.sentry.enabled) {
-  Sentry.init(config.sentry.options);
+  Sentry.init({
+    ...config.sentry.options,
+    integrations: [new Tracing.Integrations.Mongo({ useMongoose: true })],
+  });
 }
 
 // Initialize Models
 mongoose.loadModels();
 
 module.exports.init = function init(callback) {
-  mongoose.connect(function(connection) {
+  mongoose.connect(function (connection) {
     // Initialize express
     const app = express.init(connection);
     if (callback) callback(app, connection, config);
@@ -25,7 +29,7 @@ module.exports.init = function init(callback) {
 module.exports.start = function start(callback) {
   const _this = this;
 
-  _this.init(function(app, db, config) {
+  _this.init(function (app, db, config) {
     const listenArgs = [];
     if (config.fd) {
       // Start the app by listening on a file descriptor (useful for systemd socket activation)
@@ -34,7 +38,7 @@ module.exports.start = function start(callback) {
       // Start the app by listening on <port> at <host>
       listenArgs.push(config.port, config.host);
     }
-    app.listen(...listenArgs, function() {
+    app.listen(...listenArgs, function () {
       // Check in case mailer config is still set to default values (a common problem)
       if (
         config.mailer.service &&
@@ -76,6 +80,12 @@ module.exports.start = function start(callback) {
             (config.influxdb && config.influxdb.enabled === true
               ? 'on'
               : 'off'),
+        ),
+      );
+      console.log(
+        chalk.green(
+          'Sentry:\t\t' +
+            (config.sentry && config.sentry.enabled === true ? 'on' : 'off'),
         ),
       );
 

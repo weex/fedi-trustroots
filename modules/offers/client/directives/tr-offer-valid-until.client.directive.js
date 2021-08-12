@@ -73,17 +73,17 @@ function trOfferValidUntilDirective() {
         setValidUntilDays(vm.offerValidityInDays);
       }
 
-      $scope.$watch('trOfferValidUntil.offerValidityInDays', function(
-        newValue,
-        oldValue,
-      ) {
-        if (newValue !== oldValue) {
-          setValidUntilDays(newValue);
-        }
-      });
+      $scope.$watch(
+        'trOfferValidUntil.offerValidityInDays',
+        function (newValue, oldValue) {
+          if (newValue !== oldValue) {
+            setValidUntilDays(newValue);
+          }
+        },
+      );
 
       // Update $scope when view model updates
-      $scope.$watch('trOfferValidUntil.validUntil', function(date) {
+      $scope.$watch('trOfferValidUntil.validUntil', function (date) {
         $scope.validUntil = date;
       });
     }
@@ -98,14 +98,9 @@ function trOfferValidUntilDirective() {
 
       // Defaults to max
       // @link https://momentjs.com/docs/#/manipulating/add/
-      const add = days
-        ? { days: days }
-        : appSettings.limits.maxOfferValidFromNow;
+      const add = days ? { days } : appSettings.limits.maxOfferValidFromNow;
 
-      vm.validUntil = moment()
-        .endOf('day')
-        .add(add)
-        .toDate();
+      vm.validUntil = moment().endOf('day').add(add).toDate();
     }
   }
 }

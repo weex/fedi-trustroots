@@ -3,7 +3,7 @@ import AppConfig from '@/modules/core/client/app/config';
 /**
  * Push service
  */
-describe('Push Service Tests', function() {
+describe('Push Service Tests', function () {
   let $httpBackend;
   let firebaseMessaging;
   let locker;
@@ -17,7 +17,7 @@ describe('Push Service Tests', function() {
 
   const notifications = [];
 
-  beforeEach(inject(function(
+  beforeEach(inject(function (
     _$httpBackend_,
     _locker_,
     $window,
@@ -32,21 +32,21 @@ describe('Push Service Tests', function() {
     };
     notifications.length = 0;
     firebaseMessaging.shouldInitialize = false;
-    $window.Notification = function(title, options) {
-      notifications.push({ title: title, options: options });
+    $window.Notification = function (title, options) {
+      notifications.push({ title, options });
     };
   }));
 
-  afterEach(function() {
+  afterEach(function () {
     locker.clean();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     $httpBackend.verifyNoOutstandingExpectation();
     $httpBackend.verifyNoOutstandingRequest();
   });
 
-  it('will save to server if enabled', inject(function(push, Authentication) {
+  it('will save to server if enabled', inject(function (push, Authentication) {
     if (!push.isSupported) return;
 
     const token = 'mynicetoken';
@@ -54,14 +54,12 @@ describe('Push Service Tests', function() {
 
     $httpBackend
       .expect('POST', '/api/users/push/registrations', {
-        token: token,
+        token,
         platform: 'web',
       })
       .respond(200, {
         user: {
-          pushRegistration: [
-            { token: token, platform: 'web', created: Date.now() },
-          ],
+          pushRegistration: [{ token, platform: 'web', created: Date.now() }],
         },
       });
 
@@ -75,7 +73,7 @@ describe('Push Service Tests', function() {
     expect(locker.get('tr.push')).toBe('on');
   }));
 
-  it('will save to server during initialization if on but not present', inject(function(
+  it('will save to server during initialization if on but not present', inject(function (
     push,
     Authentication,
   ) {
@@ -85,14 +83,14 @@ describe('Push Service Tests', function() {
 
     $httpBackend
       .expect('POST', '/api/users/push/registrations', {
-        token: token,
+        token,
         platform: 'web',
       })
       .respond(200, {
         user: {
           pushRegistration: [
             {
-              token: token,
+              token,
               platform: 'web',
               created: Date.now(),
             },
@@ -119,7 +117,7 @@ describe('Push Service Tests', function() {
     expect(Authentication.user.pushRegistration[0].token).toBe(token);
   }));
 
-  it('can be disabled and will be removed from server', inject(function(
+  it('can be disabled and will be removed from server', inject(function (
     push,
     Authentication,
     locker,
@@ -133,7 +131,7 @@ describe('Push Service Tests', function() {
     firebase.token = token;
     firebase.permissionGranted = true;
     Authentication.user.pushRegistration.push({
-      token: token,
+      token,
       platform: 'web',
     });
 
@@ -169,7 +167,7 @@ describe('Push Service Tests', function() {
     expect(push.isEnabled).toBe(false);
   }));
 
-  it('will not save to server if enabling and already registered', inject(function(
+  it('will not save to server if enabling and already registered', inject(function (
     push,
     Authentication,
     $rootScope,
@@ -181,7 +179,7 @@ describe('Push Service Tests', function() {
     firebase.token = token;
     firebase.permissionGranted = true;
     Authentication.user.pushRegistration.push({
-      token: token,
+      token,
       platform: 'web',
     });
     push.enable();
@@ -191,7 +189,7 @@ describe('Push Service Tests', function() {
     expect(locker.get('tr.push')).toBe('on');
   }));
 
-  it('should trigger a notification when a message is received', inject(function(
+  it('should trigger a notification when a message is received', inject(function (
     push,
   ) {
     if (!push.isSupported) return;
@@ -213,19 +211,19 @@ function createFirebaseMock() {
 
   const firebase = {
     deletedTokens: [],
-    reset: reset,
+    reset,
     moduleName: 'firebaseMessagingMock',
 
-    triggerOnMessage: function() {
+    triggerOnMessage() {
       const args = arguments;
-      onMessageCallbacks.forEach(function(fn) {
+      onMessageCallbacks.forEach(function (fn) {
         fn.apply(null, args);
       });
     },
 
-    triggerOnTokenRefresh: function() {
+    triggerOnTokenRefresh() {
       const args = arguments;
-      onTokenRefreshCallbacks.forEach(function(fn) {
+      onTokenRefreshCallbacks.forEach(function (fn) {
         fn.apply(null, args);
       });
     },
@@ -251,29 +249,29 @@ function createFirebaseMock() {
     return {
       name: 'fcm-mock',
       shouldInitialize: false, // means core does not set it up for us
-      getToken: function() {
+      getToken() {
         if (firebase.permissionGranted) {
           return $q.resolve(firebase.token);
         } else {
           return $q.resolve(null);
         }
       },
-      requestPermission: function() {
+      requestPermission() {
         firebase.permissionGranted = true;
         firebase.requestPermissionCalled++;
         return $q.resolve();
       },
-      deleteToken: function(token) {
+      deleteToken(token) {
         firebase.deletedTokens.push(token);
         return $q.resolve();
       },
-      onTokenRefresh: function(fn) {
+      onTokenRefresh(fn) {
         onTokenRefreshCallbacks.push(fn);
       },
-      onMessage: function(fn) {
+      onMessage(fn) {
         onMessageCallbacks.push(fn);
       },
-      removeServiceWorker: function() {
+      removeServiceWorker() {
         firebase.removeServiceWorkerCalled++;
       },
     };

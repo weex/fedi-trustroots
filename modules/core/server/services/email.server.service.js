@@ -29,7 +29,7 @@ function getSupportVolunteerName() {
   return _.sample(config.supportVolunteerNames);
 }
 
-exports.sendMessagesUnread = function(
+exports.sendMessagesUnread = function (
   userFrom,
   userTo,
   notification,
@@ -63,14 +63,14 @@ exports.sendMessagesUnread = function(
     urlReply: analyticsHandler.appendUTMParams(urlReply, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
       content: 'reply-to',
     }),
     urlUserFromProfilePlainText: urlUserFromProfile,
     urlUserFromProfile: analyticsHandler.appendUTMParams(urlUserFromProfile, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
       content: 'profile',
     }),
     utmCampaign: campaign,
@@ -80,7 +80,7 @@ exports.sendMessagesUnread = function(
   exports.renderEmailAndSend('messages-unread', params, callback);
 };
 
-exports.sendConfirmContact = function(
+exports.sendConfirmContact = function (
   user,
   friend,
   contact,
@@ -96,21 +96,21 @@ exports.sendConfirmContact = function(
     subject: 'Confirm contact',
     name: friend.displayName,
     email: friend.email,
-    messageHTML: messageHTML,
-    messageText: messageText,
+    messageHTML,
+    messageText,
     meName: user.displayName,
     meURLPlainText: meURL,
     meURL: analyticsHandler.appendUTMParams(meURL, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
       content: 'profile',
     }),
     urlConfirmPlainText: urlConfirm,
     urlConfirm: analyticsHandler.appendUTMParams(urlConfirm, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
       content: 'confirm-contact',
     }),
     utmCampaign: campaign,
@@ -123,7 +123,7 @@ exports.sendConfirmContact = function(
 /**
  * Email with a token to initialize removing a user
  */
-exports.sendRemoveProfile = function(user, callback) {
+exports.sendRemoveProfile = function (user, callback) {
   const urlConfirm = url + '/remove/' + user.removeProfileToken;
   const campaign = 'remove-profile';
 
@@ -137,7 +137,7 @@ exports.sendRemoveProfile = function(user, callback) {
     urlConfirm: analyticsHandler.appendUTMParams(urlConfirm, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
     }),
   });
   exports.renderEmailAndSend('remove-profile', params, callback);
@@ -146,7 +146,7 @@ exports.sendRemoveProfile = function(user, callback) {
 /**
  * Email confirmation that user was removed
  */
-exports.sendRemoveProfileConfirmed = function(user, callback) {
+exports.sendRemoveProfileConfirmed = function (user, callback) {
   const campaign = 'remove-profile-confirmed';
 
   const params = exports.addEmailBaseTemplateParams({
@@ -159,7 +159,7 @@ exports.sendRemoveProfileConfirmed = function(user, callback) {
   exports.renderEmailAndSend('remove-profile-confirmed', params, callback);
 };
 
-exports.sendResetPassword = function(user, callback) {
+exports.sendResetPassword = function (user, callback) {
   const urlConfirm = url + '/api/auth/reset/' + user.resetPasswordToken;
   const campaign = 'reset-password';
 
@@ -173,13 +173,13 @@ exports.sendResetPassword = function(user, callback) {
     urlConfirm: analyticsHandler.appendUTMParams(urlConfirm, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
     }),
   });
   exports.renderEmailAndSend('reset-password', params, callback);
 };
 
-exports.sendResetPasswordConfirm = function(user, callback) {
+exports.sendResetPasswordConfirm = function (user, callback) {
   const urlResetPassword = url + '/password/forgot';
   const campaign = 'reset-password-confirm';
 
@@ -193,13 +193,13 @@ exports.sendResetPasswordConfirm = function(user, callback) {
     urlResetPassword: analyticsHandler.appendUTMParams(urlResetPassword, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
     }),
   });
   exports.renderEmailAndSend('reset-password-confirm', params, callback);
 };
 
-exports.sendChangeEmailConfirmation = function(user, callback) {
+exports.sendChangeEmailConfirmation = function (user, callback) {
   const urlConfirm = url + '/confirm-email/' + user.emailToken;
   const campaign = 'confirm-email';
 
@@ -211,7 +211,7 @@ exports.sendChangeEmailConfirmation = function(user, callback) {
     urlConfirm: analyticsHandler.appendUTMParams(urlConfirm, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
     }),
     utmCampaign: campaign,
     sparkpostCampaign: campaign,
@@ -220,7 +220,7 @@ exports.sendChangeEmailConfirmation = function(user, callback) {
   exports.renderEmailAndSend('email-confirmation', params, callback);
 };
 
-exports.sendSignupEmailConfirmation = function(user, callback) {
+exports.sendSignupEmailConfirmation = function (user, callback) {
   const urlConfirm = url + '/confirm-email/' + user.emailToken + '?signup=true';
   const campaign = 'confirm-email';
 
@@ -232,7 +232,7 @@ exports.sendSignupEmailConfirmation = function(user, callback) {
     urlConfirm: analyticsHandler.appendUTMParams(urlConfirm, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
     }),
     utmCampaign: campaign,
     sparkpostCampaign: campaign,
@@ -241,7 +241,7 @@ exports.sendSignupEmailConfirmation = function(user, callback) {
   exports.renderEmailAndSend('signup', params, callback);
 };
 
-exports.sendSupportRequest = function(replyTo, supportRequest, callback) {
+exports.sendSupportRequest = function (replyTo, supportRequest, callback) {
   let subject = 'Support request';
 
   // I miss CoffeeSscript
@@ -256,8 +256,8 @@ exports.sendSupportRequest = function(replyTo, supportRequest, callback) {
     from: 'Trustroots Support <' + config.supportEmail + '>',
     name: 'Trustroots Support', // `To:`
     email: config.supportEmail, // `To:`
-    replyTo: replyTo,
-    subject: subject,
+    replyTo,
+    subject,
     request: supportRequest,
     skipHtmlTemplate: true, // Don't render html template for this email
     sparkpostCampaign: 'support-request',
@@ -266,7 +266,7 @@ exports.sendSupportRequest = function(replyTo, supportRequest, callback) {
   exports.renderEmailAndSend('support-request', params, callback);
 };
 
-exports.sendSignupEmailReminder = function(user, callback) {
+exports.sendSignupEmailReminder = function (user, callback) {
   const urlConfirm = url + '/confirm-email/' + user.emailToken + '?signup=true';
   const campaign = 'signup-reminder';
 
@@ -285,11 +285,11 @@ exports.sendSignupEmailReminder = function(user, callback) {
     urlConfirm: analyticsHandler.appendUTMParams(urlConfirm, {
       source: 'transactional-email',
       medium: 'email',
-      campaign: campaign,
+      campaign,
     }),
     utmCampaign: campaign,
     sparkpostCampaign: campaign,
-    reminderCount: reminderCount, // This email is a reminder number `n` to this user
+    reminderCount, // This email is a reminder number `n` to this user
     reminderCountMax: config.limits.maxSignupReminders, // Max n of reminders system sends
     timeAgo: moment(user.created).fromNow(), // A string, e.g. `3 days ago`
   });
@@ -302,13 +302,13 @@ exports.sendSignupEmailReminder = function(user, callback) {
   exports.renderEmailAndSend('signup-reminder', params, callback);
 };
 
-exports.sendReactivateHosts = function(user, callback) {
+exports.sendReactivateHosts = function (user, callback) {
   const urlOffer = url + '/offer';
   const campaign = 'reactivate-hosts';
   const utmParams = {
     source: 'transactional-email',
     medium: 'email',
-    campaign: campaign,
+    campaign,
   };
 
   const params = exports.addEmailBaseTemplateParams({
@@ -335,14 +335,14 @@ exports.sendReactivateHosts = function(user, callback) {
 /**
  * 1/3 welcome sequence email
  */
-exports.sendWelcomeSequenceFirst = function(user, callback) {
+exports.sendWelcomeSequenceFirst = function (user, callback) {
   const urlEditProfile = url + '/profile/edit';
   const urlFAQ = url + '/faq';
   const campaign = 'welcome-sequence-first';
   const utmParams = {
     source: 'transactional-email',
     medium: 'email',
-    campaign: campaign,
+    campaign,
   };
 
   const params = exports.addEmailBaseTemplateParams({
@@ -368,13 +368,13 @@ exports.sendWelcomeSequenceFirst = function(user, callback) {
 /**
  * 2/3 welcome sequence email
  */
-exports.sendWelcomeSequenceSecond = function(user, callback) {
+exports.sendWelcomeSequenceSecond = function (user, callback) {
   const urlMeet = url + '/offer/meet';
   const campaign = 'welcome-sequence-second';
   const utmParams = {
     source: 'transactional-email',
     medium: 'email',
-    campaign: campaign,
+    campaign,
   };
 
   const params = exports.addEmailBaseTemplateParams({
@@ -399,12 +399,14 @@ exports.sendWelcomeSequenceSecond = function(user, callback) {
 /**
  * 3/3 welcome sequence email
  */
-exports.sendWelcomeSequenceThird = function(user, callback) {
+exports.sendWelcomeSequenceThird = function (user, callback) {
   // For members with empty profiles,
   // remind them how important it is to fill their profile.
   // Ask for feedback from the rest.
-  const descriptionLength = textService.plainText(user.description || '', true)
-    .length;
+  const descriptionLength = textService.plainText(
+    user.description || '',
+    true,
+  ).length;
   const messageTopic =
     descriptionLength < config.profileMinimumLength
       ? 'fill-profile'
@@ -415,7 +417,7 @@ exports.sendWelcomeSequenceThird = function(user, callback) {
   const utmParams = {
     source: 'transactional-email',
     medium: 'email',
-    campaign: campaign,
+    campaign,
   };
 
   const params = exports.addEmailBaseTemplateParams({
@@ -439,43 +441,83 @@ exports.sendWelcomeSequenceThird = function(user, callback) {
 };
 
 /**
- * Reference Notification (First between users)
+ * Experience Notification (First between users)
  */
-exports.sendReferenceNotificationFirst = function(userFrom, userTo, callback) {
+exports.sendExperienceNotificationFirst = function (
+  userFrom,
+  userTo,
+  callback,
+) {
+  const campaign = 'experience-notification-first';
+  const userFromProfileUrl = `${url}/profile/${userFrom.username}`;
+  const giveExperienceUrl = `${url}/profile/${userFrom.username}/experiences/new`;
+
   const params = exports.addEmailBaseTemplateParams({
-    subject: 'New reference from ' + userFrom.username,
+    subject: `${userFrom.displayName} shared their experience with you`,
     email: userTo.email,
+    days: config.limits.timeToReplyExperience.days,
     username: userTo.username, // data needed for link to profile in footer
-    userFrom: userFrom,
-    userTo: userTo,
-    userFromProfileUrl: url + '/profile/' + userFrom.username,
-    giveReferenceUrl: url + '/profile/' + userFrom.username + '/references/new',
+    userFrom,
+    userTo,
+    userFromProfileUrlPlainText: userFromProfileUrl,
+    userFromProfileUrl: analyticsHandler.appendUTMParams(userFromProfileUrl, {
+      source: 'transactional-email',
+      medium: 'email',
+      campaign,
+      content: 'from-profile',
+    }),
+    giveExperienceUrlPlainText: giveExperienceUrl,
+    giveExperienceUrl: analyticsHandler.appendUTMParams(giveExperienceUrl, {
+      source: 'transactional-email',
+      medium: 'email',
+      campaign,
+      content: 'give-experience',
+    }),
   });
 
-  exports.renderEmailAndSend('reference-notification-first', params, callback);
+  exports.renderEmailAndSend('experience-notification-first', params, callback);
 };
 
 /**
- * Reference Notification (Second reference between users)
+ * Experience Notification (Second experience between users)
  */
-exports.sendReferenceNotificationSecond = function(
+exports.sendExperienceNotificationSecond = function (
   userFrom,
   userTo,
-  reference,
+  experience,
   callback,
 ) {
+  const campaign = 'experience-notification-second';
+  const seeExperiencesUrl = `${url}/profile/${userTo.username}/experiences#${experience._id}`;
+  const userFromProfileUrl = `${url}/profile/${userFrom.username}`;
+
   const params = exports.addEmailBaseTemplateParams({
-    subject: 'New reference from ' + userFrom.username,
+    subject: `${userFrom.displayName} shared also their experience with you`,
     email: userTo.email,
     username: userTo.username, // data needed for link to profile in footer
-    userFrom: userFrom,
-    userTo: userTo,
-    userFromProfileUrl: url + '/profile/' + userFrom.username,
-    seeReferencesUrl: url + '/profile/' + userTo.username + '/references',
-    recommend: reference.recommend,
+    userFrom,
+    userTo,
+    userFromProfileUrlPlainText: userFromProfileUrl,
+    userFromProfileUrl: analyticsHandler.appendUTMParams(userFromProfileUrl, {
+      source: 'transactional-email',
+      medium: 'email',
+      campaign,
+      content: 'from-profile',
+    }),
+    seeExperiencesUrlPlainText: seeExperiencesUrl,
+    seeExperiencesUrl: analyticsHandler.appendUTMParams(seeExperiencesUrl, {
+      source: 'transactional-email',
+      medium: 'email',
+      campaign,
+      content: 'see-experiences',
+    }),
   });
 
-  exports.renderEmailAndSend('reference-notification-second', params, callback);
+  exports.renderEmailAndSend(
+    'experience-notification-second',
+    params,
+    callback,
+  );
 };
 
 /**
@@ -486,7 +528,7 @@ exports.sendReferenceNotificationSecond = function(
  * @param {Object[]} params - Parameters used for rendering emails
  * @returns {Object[]} - Returns object with supportUrl, footerUrl and headerUrl parameters.
  */
-exports.addEmailBaseTemplateParams = function(params) {
+exports.addEmailBaseTemplateParams = function (params) {
   if (params === null || typeof params !== 'object') {
     log(
       'error',
@@ -501,12 +543,12 @@ exports.addEmailBaseTemplateParams = function(params) {
   params.urlSupportPlainText = baseUrl + '/support';
   params.footerUrlPlainText = baseUrl;
 
-  const buildAnalyticsUrl = function(url, content) {
+  const buildAnalyticsUrl = function (url, content) {
     return analyticsHandler.appendUTMParams(url, {
       source: 'transactional-email',
       medium: 'email',
       campaign: params.utmCampaign || 'transactional-email',
-      content: content,
+      content,
     });
   };
 
@@ -525,7 +567,7 @@ exports.addEmailBaseTemplateParams = function(params) {
   return params;
 };
 
-exports.renderEmail = function(templateName, params, callback) {
+exports.renderEmail = function (templateName, params, callback) {
   const templatePaths = {};
 
   // `./modules/core/server/views/email-templates-text`
@@ -546,17 +588,17 @@ exports.renderEmail = function(templateName, params, callback) {
   // swig is unmaintained now https://github.com/paularmstrong/swig)
   async.mapValuesSeries(
     templatePaths,
-    function(templatePath, key, done) {
-      render(templatePath, params, function(err, rendered) {
+    function (templatePath, key, done) {
+      render(templatePath, params, function (err, rendered) {
         // there are promises inside render(), need to execute callback in
         // nextTick() so callback can safely throw exceptions
         // see https://github.com/caolan/async/issues/1150
-        async.nextTick(function() {
+        async.nextTick(function () {
           done(err, rendered);
         });
       });
     },
-    function(err, result) {
+    function (err, result) {
       if (err) return callback(err);
 
       // Clean out html entities (like &gt;) from plain text emails
@@ -570,7 +612,7 @@ exports.renderEmail = function(templateName, params, callback) {
         mention: false,
         hashtag: false,
         stripPrefix: false,
-        replaceFn: function(match) {
+        replaceFn(match) {
           return '<' + match.getAnchorHref() + '>';
         },
       });
@@ -605,8 +647,8 @@ exports.renderEmail = function(templateName, params, callback) {
   );
 };
 
-exports.renderEmailAndSend = function(templateName, params, callback) {
-  exports.renderEmail(templateName, params, function(err, email) {
+exports.renderEmailAndSend = function (templateName, params, callback) {
+  exports.renderEmail(templateName, params, function (err, email) {
     if (err) return callback(err);
     agenda.now('send email', email, callback);
   });

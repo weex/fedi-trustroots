@@ -1,0 +1,23 @@
+{
+  "Check <1>our Grafana</1> for stats galore.": "Check <1>our Grafana</1> for stats galore.",
+  "Connected to networks": "Connected to networks",
+  "Consider volunteering!": "Consider volunteering!",
+  "Enabling the latent trust between humans since {{date, LL}}": "Enabling the latent trust between humans since {{date, LL}}",
+  "Hosts": "Hosts",
+  "Member growth": "Member growth",
+  "Member retention": "Member retention",
+  "Members": "Members",
+  "Most messages get replies": "Most messages get replies",
+  "Newsletter": "Newsletter",
+  "Subscribe to newsletter": "Subscribe to newsletter",
+  "Translations status": "Translations status",
+  "Trustroots Statistics": "Trustroots Statistics",
+  "Wanna help understand Trustroots more in depth?": "Wanna help understand Trustroots more in depth?",
+  "Weekly messages": "Weekly messages",
+  "{{count}} members": "{{count}} members",
+  "{{count}} members_plural": "{{count}} members",
+  "{{count}} subscribers": "{{count}} subscribers",
+  "{{count}} subscribers_plural": "{{count}} subscribers",
+  "{{percentage}}% maybe": "{{percentage}}% maybe",
+  "{{percentage}}% yes": "{{percentage}}% yes"
+}

@@ -1,0 +1,88 @@
+{
+    "About": "Om",
+    "About me": "Om meg",
+    "Add contact": "Legg til kontakt",
+    "Change language": "Endre språk",
+    "Contacts": "Kontakter",
+    "Delete contact request": "Slett kontaktforespørsel",
+    "Don't panic!": "Ikke få panikk!",
+    "Edit your profile": "Rediger profilen din",
+    "Elsewhere": "Annensteds hen",
+    "Fill your profile": "Fyll ut din profil",
+    "From <1>{{locationFrom}}</1>": "Fra <1>{{locationFrom}}</1>",
+    "Help!": "Hjelp!",
+    "Hosting": "Husing",
+    "If you didn't receive the message, check your spam folder or resend it via<1>email settings</1>": {
+        "": "Hvis du ikke fikk meldingen, sjekk søppelposten, eller send på ny via <1>e-postinnstillingene</1>."
+    },
+    "Interface language": "Grensesnittsspråk",
+    "Languages": "Språk",
+    "Lives in <2>{{locationLiving}}</2>": "Bor i <2>{{locationLiving}}</2>",
+    "Member has not written description about themself": {
+        "": "Medlemmet har ikke beskrevet seg selv."
+    },
+    "Member since {{date, ll}}": "Medlem siden {{date, ll}}",
+    "Online long ago": "Logget på for lenge siden",
+    "Online {{ date, fromNow }}": "Pålogget {{ date, fromNow }}",
+    "Open user profile for {{name}}": "Åpne brukerprofil for {{name}}",
+    "Overview": "Oversikt",
+    "Remove contact": "Fjern kontakt",
+    "Replies within {{replyTime, fromNow}}": {
+        "": "Svarer innen {{replyTime, fromNow}}."
+    },
+    "Reply rate {{replyRate}}": {
+        "": "Svarprosent {{replyRate}}."
+    },
+    "Send a message": "Send en melding",
+    "Sorry, you need to first activate your profile by confirming your email": {
+        "": "Bekret via e-post for å aktivere profilen din først."
+    },
+    "Support": "Brukerstøtte",
+    "Thanks to all our community members who helped translate!": "Takk til alle våre medlemmer som har hjulpet til med oversettelsen.",
+    "This is the language of the interface you see across the site": {
+        "": "Dette er språket for grensesnittet du ser på siden."
+    },
+    "Tribes in common": "Gemenskap til felles",
+    "Write a reference": "Skriv en referanse",
+    "You can help us out!": "Du kan hjelpe oss.",
+    "Your profile description should be longer so that you can send messages": {
+        "": "Profilbeskrivelsen din må være lengre for at du skal kunne sende meldinger."
+    },
+    "female": "kvinne",
+    "male": "mann",
+    "non-binary": "ikke-binær",
+    "other": "annet",
+    "{{birthdate, age}} years": "{{birthdate, age}} år",
+    "“Everyone is necessarily the hero of their own life story": {
+        "”": "\"Enhver er i egen tro salig.\""
+    },
+    "Find people": "Finn folk",
+    "Share your experience": "Del din opplevelse",
+    "{{count}} experiences": "{{count}} opplevelse",
+    "{{count}} experiences_plural": "{{count}} opplevelser",
+    "{{count}} contacts": "{{count}} kontakt",
+    "{{count}} contacts_plural": "{{count}} kontakter",
+    "{{birthdate, age}} years.": "{{birthdate, age}} år gammel.",
+    "Trustroots volunteer alumni": "Tidligere Trustroots frivillig",
+    "Trustroots volunteer": "Trustroots frivillig",
+    "The person you are looking for is not available.": "Personen som du leter etter er ikke tilgjengelig.",
+    "Profile": "Profil",
+    "Other gender": "Andre kjønn",
+    "Oops!": "Oops!",
+    "Note that your profile will not be visible to others until you confirm your email.": "Legg merke til at din profile vises ikke til andre til du bekrefter din e-postadresse.",
+    "Non-binary": "Non-binary",
+    "Modify your meet locations": "Forandre dine møtested",
+    "Modify your hosting location": "Forandre vertsstedet ditt",
+    "Map search": "Kartsøk",
+    "Male": "Mannlig",
+    "Hosting offer": "Et tilbud om å være vert",
+    "Hosting & meet": "Vær en vert & møte",
+    "Hey, welcome!": "Hei, velkommen!",
+    "Go travel & spread the word!": "Reis & spre ordet!",
+    "Female": "Kvinnelig",
+    "Experiences": "Opplevelser",
+    "Download your data": "Last ned din data",
+    "Circles in common": "Sirkler i felles",
+    "Being able to rely on strangers, on communities, on trust, are values that are worth preserving.": "Å kunne å stole på fremmede, på samfunn, på tillit, er verdier som er verdt å bevare.",
+    "Anonymous member": "Anonym medlem"
+}

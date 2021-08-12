@@ -1,6 +1,6 @@
-import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import Backend from 'i18next-xhr-backend';
+import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import moment from 'moment';
 
@@ -10,16 +10,40 @@ const isTest = process.env.NODE_ENV === 'test';
  * The locales currently supported by the app are specified in /config/shared/locales.json
  * Add a language there if you want to support a new translation.
  * Read more at /config/shared/README.md
- *
- * @TODO For a nice user experience we may want to sort the languages by their actual usage,
- * or alphabetically,
- * or allow searching for them.
- * This will be relevant when we have a lot of translations done or in progress. Not now.
  */
 
 /**
  * translations are specified in /public/locales/{language-code}/translation.json
  */
+
+/**
+ * Ensures RTL CSS stylesheet has been loaded into the page.
+ *
+ * @returns {Promise} Resolves once loaded
+ */
+export function loadRtlCSS() {
+  return new Promise(resolve => {
+    const id = 'rtl-style';
+
+    // Check if RTL style has already been loaded
+    if (document.getElementById(id)) {
+      return resolve();
+    }
+
+    const link = document.createElement('link');
+    link.href = `assets/main.rtl.css?c=${window?.settings?.commit ?? ''}`;
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+
+    link.onload = () => {
+      link.onload = null;
+      resolve();
+    };
+
+    document.head.append(link);
+  });
+}
 
 /**
  * Format a translation parameter
@@ -90,5 +114,19 @@ i18n
     },
     // debug: true, // show missing translation keys in console.log
   });
+
+i18n.on('languageChanged', async languageCode => {
+  const direction = i18n.dir(languageCode); // `rtl` (right-to-left), or `ltr` (left-to-right)
+
+  document.documentElement.lang = languageCode;
+  document.documentElement.dir = direction;
+
+  if (direction === 'rtl') {
+    await loadRtlCSS();
+  }
+
+  // Date+time library
+  moment.locale(languageCode);
+});
 
 export default i18n;

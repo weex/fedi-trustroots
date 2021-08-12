@@ -1,15 +1,15 @@
 /**
  * Module dependencies.
  */
+const _ = require('lodash');
 const config = require('../config');
 const errorService = require('../../modules/core/server/services/error.server.service');
-const facebookNotificationService = require('../../modules/core/server/services/facebook-notification.server.service');
 const languages = require('../languages/languages.json');
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
+const mongoStore = require('connect-mongo');
 const favicon = require('serve-favicon');
 const compress = require('compression');
 const methodOverride = require('method-override');
@@ -24,13 +24,13 @@ const paginate = require('express-paginate');
 const uuid = require('uuid');
 const Sentry = require('@sentry/node');
 
-module.exports.initSentryRequestHandler = function(app) {
+module.exports.initSentryRequestHandler = function (app) {
   if (config.sentry.enabled) {
     app.use(Sentry.Handlers.requestHandler());
   }
 };
 
-module.exports.initSentryErrorHandler = function(app) {
+module.exports.initSentryErrorHandler = function (app) {
   if (config.sentry.enabled) {
     app.use(Sentry.Handlers.errorHandler());
   }
@@ -39,7 +39,7 @@ module.exports.initSentryErrorHandler = function(app) {
 /**
  * Initialize local variables
  */
-module.exports.initLocalVariables = function(app) {
+module.exports.initLocalVariables = function (app) {
   // Setting application local variables
   app.locals.title = config.app.title;
   app.locals.description = config.app.description;
@@ -60,12 +60,7 @@ module.exports.initLocalVariables = function(app) {
   app.locals.appSettings.https = config.https;
   app.locals.appSettings.maxUploadSize = config.maxUploadSize;
   app.locals.appSettings.profileMinimumLength = config.profileMinimumLength;
-  app.locals.appSettings.invitationsEnabled = config.invitations.enabled;
-  app.locals.appSettings.i18nEnabled = config.featureFlags.i18n;
   app.locals.appSettings.referencesEnabled = config.featureFlags.reference;
-  app.locals.appSettings.maitreId = config.invitations.enabled
-    ? config.invitations.maitreId
-    : false;
   app.locals.appSettings.fcmSenderId = config.fcm.senderId;
   app.locals.appSettings.limits = {
     maxOfferValidFromNow: config.limits.maxOfferValidFromNow,
@@ -83,12 +78,12 @@ module.exports.initLocalVariables = function(app) {
 
   // Get 'git rev-parse --short HEAD' (the latest git commit hash) to use as a cache buster
   // @link https://www.npmjs.com/package/git-rev
-  git.short(function(str) {
+  git.short(function (str) {
     app.locals.appSettings.commit = str;
   });
 
   // Passing the request url to environment locals
-  app.use(function(req, res, next) {
+  app.use(function (req, res, next) {
     // Determine if to use https. When proxying (e.g. with Nginx) to localhost
     // from https front, req.protocol would end up being http when it should be https.
     // @todo: sniff if behind proxy and otherwise rely req.protocol.
@@ -102,14 +97,9 @@ module.exports.initLocalVariables = function(app) {
     // https://expressjs.com/en/api.html#req.path
     res.locals.canonicalUrl = res.locals.hostPort + req.path;
 
-    next();
-  });
+    // Native mobile app wrapper loads the site with `?app` URL query argument.
+    res.locals.isNativeMobileApp = _.has(req, ['query', 'app']);
 
-  // Dynamically generate nonces to allow inline `<script>` tags to
-  // be safely evaluated with using ContentSecurityPolicy headers.
-  // See `initHelmetHeaders()` for more.
-  app.use(function(req, res, next) {
-    res.locals.nonce = uuid.v4();
     next();
   });
 };
@@ -117,11 +107,11 @@ module.exports.initLocalVariables = function(app) {
 /**
  * Initialize application middleware
  */
-module.exports.initMiddleware = function(app) {
+module.exports.initMiddleware = function (app) {
   // Should be placed before express.static
   app.use(
     compress({
-      filter: function(req, res) {
+      filter(req, res) {
         return /json|text|javascript|css|font|svg/.test(
           res.getHeader('Content-Type'),
         );
@@ -176,7 +166,7 @@ module.exports.initMiddleware = function(app) {
 /**
  * Configure view engine
  */
-module.exports.initViewEngine = function(app) {
+module.exports.initViewEngine = function (app) {
   // Set Nunjucks as the template engine
   // https://mozilla.github.io/nunjucks/
   nunjucks.configure('./modules/core/server/views', {
@@ -193,7 +183,7 @@ module.exports.initViewEngine = function(app) {
 /**
  * Configure Express session
  */
-module.exports.initSession = function(app, connection) {
+module.exports.initSession = function (app, connection) {
   // Express MongoDB session storage
   // https://www.npmjs.com/package/express-session
   app.use(
@@ -214,8 +204,8 @@ module.exports.initSession = function(app, connection) {
         // closes the browser the cookie (and session) will be removed.
         maxAge: 2419200000, // (in milliseconds) 28 days
       },
-      store: new MongoStore({
-        mongooseConnection: connection,
+      store: mongoStore.create({
+        client: connection.client,
         collection: config.sessionCollection,
       }),
     }),
@@ -225,7 +215,7 @@ module.exports.initSession = function(app, connection) {
 /**
  * Wire in user last seen middleware
  */
-module.exports.initLastSeen = function(app) {
+module.exports.initLastSeen = function (app) {
   const lastSeenController = require(path.resolve(
     './modules/users/server/controllers/users.lastseen.server.controller',
   ));
@@ -235,8 +225,8 @@ module.exports.initLastSeen = function(app) {
 /**
  * Invoke modules server configuration
  */
-module.exports.initModulesConfiguration = function(app, db) {
-  config.files.server.configs.forEach(function(configPath) {
+module.exports.initModulesConfiguration = function (app, db) {
+  config.files.server.configs.forEach(function (configPath) {
     require(path.resolve(configPath))(app, db);
   });
 };
@@ -245,52 +235,7 @@ module.exports.initModulesConfiguration = function(app, db) {
  * Configure Helmet headers configuration
  * https://helmetjs.github.io/docs/
  */
-module.exports.initHelmetHeaders = function(app) {
-  /**
-   * X-Frame protection ("frameguard") default options.
-   * @link https://helmetjs.github.io/docs/frameguard/
-   */
-  let frameguardOptions = {
-    // Action `sameorigin` will prevent anyone from putting this page in an
-    // iframe unless it’s on the same origin. That generally means that you can
-    // put your own pages in iframes, but nobody else can.
-    //
-    // action `deny` will prevent anyone from putting this page in an iframe.
-    action: 'sameorigin',
-  };
-
-  /**
-   * Content Security Policy (CSP) "frameAncestors" default value.
-   * @link https://helmetjs.github.io/docs/csp/
-   */
-  let cspFrameAncestors = ["'none'"];
-
-  /**
-   * If Facebook notifications are enabled, override default options for:
-   * - X-Frame protection
-   * - Content Security Policy (CSP) "frameAncestors" value
-   *
-   * This is required for FB canvas to work,
-   * which in turn is required for FB notifications only.
-   *
-   * X-Frame protection's `allow-from` will allow `https://apps.facebook.com`
-   * to put your page in an iframe, but nobody else.
-   * Unfortunately, you can only allow one domain and this doesn't work
-   * with Chrome as they use CSP FrameAncestors instead.
-   *
-   * @link https://helmetjs.github.io/docs/frameguard/
-   * @link https://canvas.facebook.com
-   * @link https://developers.facebook.com/docs/games/gamesonfacebook
-   * @link https://developers.facebook.com/docs/games/services/appnotifications
-   */
-  if (facebookNotificationService.isNotificationsEnabled()) {
-    frameguardOptions = {
-      action: 'allow-from',
-      domain: 'https://apps.facebook.com',
-    };
-    cspFrameAncestors = ['apps.facebook.com'];
-  }
-
+module.exports.initHelmetHeaders = function (app) {
   /*
    * Content Security Policy (CSP)
    *
@@ -303,8 +248,10 @@ module.exports.initHelmetHeaders = function(app) {
    * @link https://developers.google.com/web/fundamentals/security/csp/
    * @link https://content-security-policy.com/
    */
-  app.use(
-    helmet.contentSecurityPolicy({
+  app.use((req, res, next) => {
+    res.locals.nonce = uuid.v4();
+
+    const cspMiddleware = helmet.contentSecurityPolicy({
       directives: {
         defaultSrc: ["'self'"],
 
@@ -322,14 +269,10 @@ module.exports.initHelmetHeaders = function(app) {
           '*.twitter.com',
           '*.google-analytics.com',
           '*.gstatic.com', // Google analytics related
-          'maitreapp.co', // Signup waiting list feature
-          'ajax.googleapis.com', // Used by Maitre app
           // Use `nonce` for `<script>` tags
           // Nonce is generated above at `initLocalVariables()` middleware
-          // @link https://helmetjs.github.io/docs/csp/#generating-nonces
-          function(req, res) {
-            return "'nonce-" + res.locals.nonce + "'"; // 'nonce-614d9122-d5b0-4760-aecf-3a5d17cf0ac9'
-          },
+          // @link https://github.com/helmetjs/helmet/wiki/Conditionally-using-middleware
+          `'nonce-${res.locals.nonce}'`,
         ],
 
         // Specifies the origins that can serve web fonts.
@@ -344,7 +287,8 @@ module.exports.initHelmetHeaders = function(app) {
         // Defines the origins from which images can be loaded.
         imgSrc: [
           "'self'",
-          'grafana.trustroots.org',
+          'https://hosted.weblate.org', // Translation tool, used on /statistics page
+          'grafana.trustroots.org', // Stats tool, used on /statistics page
           'https://*.tiles.mapbox.com', // Map tiles
           'https://api.mapbox.com', // Map tiles/Geocoding
           'https://events.mapbox.com',
@@ -362,8 +306,8 @@ module.exports.initHelmetHeaders = function(app) {
           'i0.wp.com', // Gravatar (WordPress.com)
           'i1.wp.com', // Gravatar (WordPress.com)
           'i2.wp.com', // Gravatar (WordPress.com)
-          'ucarecdn.com', // Our Tribe image CDN "Uploadcare.com"
-          'data:', // Inline images (`<img src="data:...">`)
+          'data:', // Inline images (`<img src="data:...">`) + mapbox-gl
+          'blob:', // mapbox-gl https://docs.mapbox.com/mapbox-gl-js/overview/#csp-directives
         ],
 
         // Limits the origins that you can connect to
@@ -373,9 +317,9 @@ module.exports.initHelmetHeaders = function(app) {
           "'self'",
           'https://api.mapbox.com',
           'https://events.mapbox.com',
+          'https://fonts.openmaptiles.org',
           'https://tile.openstreetmap.org',
           'fcm.googleapis.com',
-          'maitreapp.co', // Signup waiting list feature
           'www.facebook.com',
           'https://sentry.io',
         ],
@@ -387,37 +331,18 @@ module.exports.initHelmetHeaders = function(app) {
         mediaSrc: ["'self'"],
 
         // Lists valid endpoints for submission from `<form>` tags.
-        formAction: ["'self'", 'trustroots.us9.list-manage.com'],
+        formAction: ["'self'"],
 
         // specifies the sources that can embed the current page.
         // This directive applies to these tags:
         // `<frame>`, `<iframe>`, `<embed>`, `<applet>`
-        frameAncestors: cspFrameAncestors,
+        frameAncestors: ["'none'"],
 
         // Defines valid sources for web workers and nested browsing contexts
         // loaded using elements such as `<frame>` and `<iframe>`
         childSrc: ["'self'", 'blob:', '*.twitter.com', '*.facebook.com'],
 
         workerSrc: ["'self'", 'blob:'],
-
-        // San
-        // @link https://developers.google.com/web/fundamentals/security/csp/#sandboxing
-        // @link https://developers.whatwg.org/origin-0.html#sandboxing
-        /*
-      sandbox: [
-        'allow-forms',
-        'allow-scripts'
-      ],
-      */
-
-        // Defines valid MIME types for plugins invoked via `<object>` and `<embed>`
-        /*
-      // For some reason Chrome complains about `'none'` as a value here and
-      // leaving it empty causes `helmet.contentSecurityPolicy()` crash. :-(
-      pluginTypes: [
-        '\'none\''
-      ],
-      */
 
         // Restricts the URLs that can appear in a page's `<base>` element.
         baseUri: ["'self'"],
@@ -439,18 +364,19 @@ module.exports.initHelmetHeaders = function(app) {
       // You could also use function here:
       // `function (req, res) { return true; }`
       reportOnly: process.env.NODE_ENV === 'development',
-    }),
-  );
+    });
+
+    cspMiddleware(res, res, next);
+  });
 
   // X-Frame protection
   // @link https://helmetjs.github.io/docs/frameguard/
   // @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
-  app.use(helmet.frameguard(frameguardOptions));
+  app.use(helmet.frameguard());
 
   // Sets Expect-CT header
   // @link https://helmetjs.github.io/docs/expect-ct/
   // @link https://scotthelme.co.uk/a-new-security-header-expect-ct/
-
   app.use(
     expectCt({
       enforce: false,
@@ -498,7 +424,7 @@ module.exports.initHelmetHeaders = function(app) {
 /**
  * Configure the modules static routes
  */
-module.exports.initModulesClientRoutes = function(app) {
+module.exports.initModulesClientRoutes = function (app) {
   // Setting the app router and static folder
   app.use('/', express.static(path.resolve('./public')));
   app.use('/', express.static(path.resolve('./public/assets')));
@@ -507,9 +433,9 @@ module.exports.initModulesClientRoutes = function(app) {
 /**
  * Configure the modules ACL policies
  */
-module.exports.initModulesServerPolicies = function() {
+module.exports.initModulesServerPolicies = function () {
   // Globbing policy files
-  config.files.server.policies.forEach(function(policyPath) {
+  config.files.server.policies.forEach(function (policyPath) {
     require(path.resolve(policyPath)).invokeRolesPolicies();
   });
 };
@@ -517,9 +443,9 @@ module.exports.initModulesServerPolicies = function() {
 /**
  * Configure the modules server routes
  */
-module.exports.initModulesServerRoutes = function(app) {
+module.exports.initModulesServerRoutes = function (app) {
   // Globbing routing files
-  config.files.server.routes.forEach(function(routePath) {
+  config.files.server.routes.forEach(function (routePath) {
     require(path.resolve(routePath))(app);
   });
 };
@@ -527,14 +453,14 @@ module.exports.initModulesServerRoutes = function(app) {
 /**
  * Configure error handling
  */
-module.exports.initErrorRoutes = function(app) {
+module.exports.initErrorRoutes = function (app) {
   app.use(errorService.errorResponse);
 };
 
 /**
  * Initialize the Express application
  */
-module.exports.init = function(connection) {
+module.exports.init = function (connection) {
   // Initialize express app
   const app = express();
 
