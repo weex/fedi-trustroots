@@ -30,7 +30,7 @@ function randomHex() {
  * - not in list of illegal labels
  * - not begin or end with "."
  */
-const validateLabel = function(label) {
+const validateLabel = function (label) {
   return (
     label &&
     label.match(/[a-zA-Z]/) && // Should have at least one a-zA-Z (non case-insensitive regex)
@@ -44,7 +44,7 @@ const validateLabel = function(label) {
  * Validation function for `TribeSchema.attribution_url`
  * @link https://www.npmjs.com/package/validator#validators
  */
-const validateURL = function(url) {
+const validateURL = function (url) {
   return (
     !url ||
     validator.isURL(url, {
@@ -57,16 +57,6 @@ const validateURL = function(url) {
       allow_protocol_relative_urls: false,
     })
   );
-};
-
-/**
- * Validation function for `TribeSchema.image_UUID`
- * Uses UUID version v4
- * @link https://en.wikipedia.org/wiki/Universally_unique_identifier#Variants_and_Versions
- * @link https://www.npmjs.com/package/validator#validators
- */
-const validateUUID = function(uuid) {
-  return !uuid || validator.isUUID(uuid, 4);
 };
 
 /**
@@ -119,9 +109,10 @@ const TribeSchema = new Schema({
     default: true,
     required: true,
   },
-  image_UUID: {
-    type: String,
-    validate: [validateUUID, 'Please use valid UUID.'],
+  image: {
+    type: Boolean,
+    default: false,
+    required: true,
   },
   attribution: {
     type: String,
@@ -154,7 +145,7 @@ TribeSchema.set('toJSON', { getters: true });
  *
  * @link http://mongoosejs.com/docs/guide.html#virtuals
  */
-TribeSchema.virtual('new').get(function() {
+TribeSchema.virtual('new').get(function () {
   // Set comparison date to 30 days ago from now
   const newLimit = moment().subtract(60, 'day');
 
@@ -176,7 +167,7 @@ TribeSchema.virtual('new').get(function() {
 TribeSchema.plugin(
   urlslugs('label', {
     field: 'slug',
-    generator: function(string) {
+    generator(string) {
       return speakingurl(string, {
         separator: '-', // char that replaces the whitespaces
         maintainCase: false, // maintain case (true, convert all chars to lower case (false)

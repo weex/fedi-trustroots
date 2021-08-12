@@ -3,7 +3,7 @@ angular.module('core').factory('Languages', LanguagesFactory);
 /* @ngInject */
 function LanguagesFactory($window) {
   const service = {
-    get: get,
+    get,
   };
 
   return service;
@@ -14,8 +14,8 @@ function LanguagesFactory($window) {
 
       angular.forEach(
         $window.languages,
-        function(value, key) {
-          this.push({ key: key, name: value });
+        function (value, key) {
+          this.push({ key, name: value });
         },
         langsArr,
       );

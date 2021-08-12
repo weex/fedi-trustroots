@@ -1,16 +1,10 @@
+import { canUseWebP } from '@/modules/core/client/utils/dom';
+import { getCircleBackgroundUrl } from '@/modules/tribes/client/utils';
+
 /**
  * Directive to apply tribe color + image styles to an element
  *
  * Set background image dimensions (width x height): <div tr-tribe-dimensions="600x400"></div>
- * See https://uploadcare.com/documentation/cdn/#operation-scale-crop
- *
- * Set background image quality: <div tr-tribe-quality="normal"></div>
- * Options: normal, better, best, lighter (default), lightest
- * See https://uploadcare.com/documentation/cdn/#operation-quality
- *
- * Set progressive image loading: <div tr-tribe-progressive="yes"></div>
- * Options: yes (default), no
- * See https://uploadcare.com/documentation/cdn/#operation-progressive
  */
 angular.module('tribes').directive('trTribeStyles', trTribeStylesDirective);
 
@@ -20,57 +14,44 @@ function trTribeStylesDirective() {
     restrict: 'A',
     replace: false,
     scope: false,
-    link: function(scope, elem, attrs) {
+    link(scope, elem, attrs) {
       if (
-        angular.isDefined(attrs.trTribeStyles) &&
-        attrs.trTribeStyles !== ''
+        !angular.isDefined(attrs.trTribeStyles) ||
+        attrs.trTribeStyles === '' ||
+        !angular.isDefined(attrs.trTribeStylesDimensions) ||
+        attrs.trTribeStylesDimensions === ''
       ) {
-        let style = '';
-        const tribe = angular.fromJson(attrs.trTribeStyles);
+        return;
+      }
 
-        // Set background image
-        // Uses Uploadcare.com to resize and deliver images
-        if (tribe.image_UUID) {
-          const dimensions =
-            angular.isDefined(attrs.trTribeStylesDimensions) &&
-            attrs.trTribeStylesDimensions !== ''
-              ? attrs.trTribeStylesDimensions
-              : '1024x768';
-          const quality =
-            angular.isDefined(attrs.trTribeStylesQuality) &&
-            attrs.trTribeStylesQuality !== ''
-              ? attrs.trTribeStylesQuality
-              : 'lighter';
-          const progressive =
-            angular.isDefined(attrs.trTribeStylesProgressive) &&
-            (attrs.trTribeStylesProgressive === 'yes' ||
-              attrs.trTribeStylesProgressive === 'no')
-              ? attrs.trTribeStylesProgressive
-              : 'no';
+      let style = '';
+      const tribe = angular.fromJson(attrs.trTribeStyles);
 
-          // Available CDN parameters: https://uploadcare.com/documentation/cdn/
-          const img_params = [
-            'progressive/' + progressive,
-            'scale_crop/' + dimensions + '/center',
-            'quality/' + quality,
-            'format/jpeg',
-          ];
+      // Set background image
+      if (tribe.image) {
+        const dimensions =
+          angular.isDefined(attrs.trTribeStylesDimensions) &&
+          attrs.trTribeStylesDimensions !== ''
+            ? attrs.trTribeStylesDimensions
+            : '1024x768';
 
-          style +=
-            'background-image: url(https://ucarecdn.com/' +
-            tribe.image_UUID +
-            '/-/' +
-            img_params.join('/-/') +
-            '/);';
-        }
+        const imageFormat = canUseWebP() ? 'webp' : 'jpg';
+        const imageUrl = getCircleBackgroundUrl(
+          tribe.slug,
+          dimensions,
+          imageFormat,
+        );
 
-        if (tribe.color) {
-          style += 'background-color: #' + tribe.color + ';';
-        }
+        style += `background-image:url(${imageUrl});`;
+      }
 
-        if (style !== '') {
-          attrs.$set('style', style);
-        }
+      // Set background color
+      if (tribe.color) {
+        style += `background-color:#${tribe.color};`;
+      }
+
+      if (style !== '') {
+        attrs.$set('style', style);
       }
     },
   };

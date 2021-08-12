@@ -23,7 +23,7 @@
 // Downmost element at intro section
 .home-down {
   font-size: 35px;
-  opacity: .8;
+  opacity: 0.8;
   margin: 30px 0 0 0;
 }
 .home-tagline {
@@ -33,7 +33,7 @@
   margin-top: 40px;
 }
 .home-tagline {
-  text-shadow: 1px 1px 6px rgba(0, 0, 0, .6);
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
 }
 .home-tagline {
   color: #fff;
@@ -94,53 +94,6 @@
     line-height: 29px;
     text-shadow: none;
   }
-}
-
-
-// Home - Browser window
-.home-browser {
-  border: 1px solid @gray-light;
-  border-radius: 10px;
-  padding: 10px;
-  width: 100%;
-  max-width: 620px;
-  margin: 10px auto;
-  @media (max-width: @screen-sm-max) {
-    border-radius: 6px;
-    padding: 5px;
-  }
-}
-.home-browser-circle {
-  float: left;
-  .square(10px);
-  margin: 0 5px 10px 0;
-  border-radius: 50%;
-  border: 1px solid @gray-light;
-  @media (max-width: @screen-sm-max) {
-    .square(5px);
-    margin: 0 3px 5px 0;
-  }
-}
-.home-browser-screenshot {
-  display: block;
-  overflow: hidden;
-  width: 100%;
-  clear: both;
-  margin: 0 auto;
-  background-repeat: no-repeat;
-  border-radius: 5px;
-  max-width: 600px;
-  min-height: 387px;
-  @media (max-width: @screen-sm-max) {
-    border-radius: 3px;
-    min-height: 200px;
-  }
-}
-.home-browser-screenshot-search {
-  .img-retina('~img/screenshot-search.png', '~img/screenshot-search@2x.png', 600px, 387px);
-}
-.home-browser-screenshot-profile {
-  .img-retina('~img/screenshot-profile.png', '~img/screenshot-profile@2x.png', 600px, 387px);
 }
 
 // Home section - hospex & how
@@ -224,7 +177,11 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%);
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.65) 0%,
+        rgba(0, 0, 0, 0) 100%
+      );
       .tribe-label {
         word-wrap: break-word;
         position: absolute;
@@ -260,13 +217,6 @@
   background-position: 50% bottom;
   padding-top: 30px;
   text-shadow: none;
-  // Normally this background won't work well on small screens with white text, so we'll just hide it
-  &.board-bokeh {
-    @media (max-width: @screen-sm-max) {
-      background-image: none !important;
-      box-shadow: none;
-    }
-  }
   .boards-credits {
     display: block;
     padding: 30px;

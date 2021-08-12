@@ -1,4 +1,3 @@
-import welcomeTemplateUrl from '@/modules/users/client/views/authentication/welcome.client.view.html';
 import profileEditTemplateUrl from '@/modules/users/client/views/profile/profile-edit.client.view.html';
 import profileEditAboutTemplateUrl from '@/modules/users/client/views/profile/profile-edit-about.client.view.html';
 import profileEditLocationsTemplateUrl from '@/modules/users/client/views/profile/profile-edit-locations.client.view.html';
@@ -22,31 +21,15 @@ import resetPasswordTemplateUrl from '@/modules/users/client/views/password/rese
 import profileRemoveTemplateUrl from '@/modules/users/client/views/profile/remove.client.view.html';
 import profileReferencesTemplateUrl from '@/modules/users/client/views/profile/profile-view-references.client.view.html';
 
-import AppConfig from '@/modules/core/client/app/config';
-
 angular.module('users').config(UsersRoutes);
 
 /* @ngInject */
 function UsersRoutes($stateProvider) {
   $stateProvider
-    // Invite route deprecated in 11-2018
-    .state('invite', {
-      url: '/invite',
-      controller:
-        /* @ngInject */
-        function($state) {
-          $state.go('signup');
-        },
-      controllerAs: 'invite',
-      requiresAuth: false,
-      data: {
-        pageTitle: 'Signup',
-      },
-    })
     // Users state routing
     .state('welcome', {
       url: '/welcome',
-      templateUrl: welcomeTemplateUrl,
+      template: '<welcome />',
       requiresAuth: true,
       footerHidden: true,
       data: {
@@ -79,7 +62,7 @@ function UsersRoutes($stateProvider) {
       resolve: {
         // A string value resolves to a service
         SettingsService: 'SettingsService',
-        appSettings: function(SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
       },
@@ -96,7 +79,7 @@ function UsersRoutes($stateProvider) {
       resolve: {
         // A string value resolves to a service
         SettingsService: 'SettingsService',
-        appSettings: function(SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
       },
@@ -138,14 +121,14 @@ function UsersRoutes($stateProvider) {
         SettingsService: 'SettingsService',
         ContactsListService: 'ContactsListService',
 
-        appSettings: function(SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
 
-        profile: function(UserProfilesService, $stateParams, $q) {
+        profile(UserProfilesService, $stateParams, $q) {
           return UserProfilesService.get({
             username: $stateParams.username,
-          }).$promise.catch(function(e) {
+          }).$promise.catch(function (e) {
             if (e.status === 404) {
               // when user was not found, resolving with empty user profile, in order to display the User Not Found error.
               return { $promise: $q.resolve({}), $resolved: true };
@@ -156,9 +139,9 @@ function UsersRoutes($stateProvider) {
         },
 
         // Contact is loaded only after profile is loaded, because we need the profile ID
-        contact: function(ContactByService, profile, Authentication) {
+        contact(ContactByService, profile, Authentication) {
           return profile.$promise.then(
-            function(profile) {
+            function (profile) {
               // when user doesn't exist, no need to load contact
               if (!profile._id) {
                 return;
@@ -176,15 +159,15 @@ function UsersRoutes($stateProvider) {
               }
             },
             // Fetch failures
-            function() {
+            function () {
               return;
             },
           );
         },
 
         // Contacts list is loaded only after profile is loaded, because we need the profile ID
-        contacts: function(ContactsListService, profile) {
-          return profile.$promise.then(function(profile) {
+        contacts(ContactsListService, profile) {
+          return profile.$promise.then(function (profile) {
             // when user doesn't exist, no need to load contacts
             if (!profile._id) {
               return;
@@ -258,9 +241,7 @@ function UsersRoutes($stateProvider) {
     // Auth routes
     .state('signup', {
       // `tribe`: preload tribe in suggested tribes list
-      // `code`: prefill invite code
-      // `mwr` used by Matre app if invite list is enabled
-      url: '/signup?tribe&code&mwr',
+      url: '/signup?tribe',
       templateUrl: signupTemplateUrl,
       controller: 'SignupController',
       controllerAs: 'signup',
@@ -272,7 +253,7 @@ function UsersRoutes($stateProvider) {
         // A string value resolves to a service
         SettingsService: 'SettingsService',
 
-        appSettings: function(SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
       },
@@ -291,7 +272,7 @@ function UsersRoutes($stateProvider) {
         // A string value resolves to a service
         SettingsService: 'SettingsService',
 
-        appSettings: function(SettingsService) {
+        appSettings(SettingsService) {
           return SettingsService.get();
         },
       },
@@ -366,38 +347,35 @@ function UsersRoutes($stateProvider) {
       data: {
         pageTitle: 'Remove profile',
       },
+    })
+    .state('profile.experiences', {
+      url: '/experiences',
+      templateUrl: profileReferencesTemplateUrl,
+      requiresAuth: true,
+      noScrollingTop: true,
+      abstract: true,
+      data: {
+        pageTitle: 'Experiences',
+      },
+    })
+    .state('profile.experiences.list', {
+      url: '',
+      template:
+        '<list-experiences ng-if="app.appSettings.referencesEnabled" profile="profileCtrl.profile" authenticatedUser="app.user"></list-experiences>',
+      requiresAuth: true,
+      noScrollingTop: true,
+      data: {
+        pageTitle: 'Experiences',
+      },
+    })
+    .state('profile.experiences.new', {
+      url: '/new',
+      template:
+        '<create-experience ng-if="app.appSettings.referencesEnabled" userTo="profileCtrl.profile" userFrom="app.user"></create-experience>',
+      requiresAuth: true,
+      noScrollingTop: true,
+      data: {
+        pageTitle: 'Share your experience',
+      },
     });
-
-  if (AppConfig.appEnv !== 'production') {
-    $stateProvider
-      .state('profile.references', {
-        url: '/references',
-        templateUrl: profileReferencesTemplateUrl,
-        requiresAuth: true,
-        noScrollingTop: true,
-        abstract: true,
-        data: {
-          pageTitle: 'Profile references',
-        },
-      })
-      .state('profile.references.list', {
-        url: '',
-        template: '',
-        requiresAuth: true,
-        noScrollingTop: true,
-        data: {
-          pageTitle: 'Profile references',
-        },
-      })
-      .state('profile.references.new', {
-        url: '/new',
-        template:
-          '<create-reference userTo="profileCtrl.profile" userFrom="app.user"></create-reference>',
-        requiresAuth: true,
-        noScrollingTop: true,
-        data: {
-          pageTitle: 'Leave a reference',
-        },
-      });
-  }
 }

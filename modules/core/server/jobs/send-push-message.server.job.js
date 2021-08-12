@@ -13,7 +13,7 @@ const log = require(path.resolve('./config/lib/logger'));
 const UNREGISTERED_TOKEN_ERROR_CODE =
   'messaging/registration-token-not-registered';
 
-module.exports = function(job, done) {
+module.exports = function (job, done) {
   const attrs = job.attrs;
   const data = attrs.data;
 
@@ -26,7 +26,7 @@ module.exports = function(job, done) {
   const notification = data.notification;
 
   // Log that we're sending a notification
-  log('debug', 'Starting `send push notification` job', { jobId: jobId });
+  log('debug', 'Starting `send push notification` job', { jobId });
 
   // Validate notification
   if (!notification.body || !notification.click_action) {
@@ -34,7 +34,7 @@ module.exports = function(job, done) {
       'error',
       '`send push notification` job cannot send notification due missing required `body` or `click_action` values #zqo8bf',
       {
-        jobId: jobId,
+        jobId,
       },
     );
 
@@ -47,7 +47,7 @@ module.exports = function(job, done) {
   const exponentTokens = [];
 
   // Sort push tokens by cloud service
-  pushServices.forEach(function(pushService) {
+  pushServices.forEach(function (pushService) {
     switch (String(pushService.platform)) {
       case 'ios':
       case 'android':
@@ -63,20 +63,20 @@ module.exports = function(job, done) {
           'error',
           'The `send push notification` job cannot process notification due missing platform value. #f932hf',
           {
-            jobId: jobId,
+            jobId,
           },
         );
     }
   });
 
   // push to Firebase
-  const firebasePushPromise = new Promise(function(resolve, reject) {
+  const firebasePushPromise = new Promise(function (resolve, reject) {
     // any Firebase tokens to push to?
     if (firebaseTokens.length === 0) {
       log(
         'debug',
         '`send push notification` job could not find Firebase tokens.',
-        { jobId: jobId },
+        { jobId },
       );
       // if not, mark as done
       resolve();
@@ -84,10 +84,10 @@ module.exports = function(job, done) {
     }
     // push to Firebase
     firebaseMessaging
-      .sendToDevice(firebaseTokens, { notification: notification })
-      .then(function(response) {
+      .sendToDevice(firebaseTokens, { notification })
+      .then(function (response) {
         const unregisteredTokens = [];
-        response.results.forEach(function(result, idx) {
+        response.results.forEach(function (result, idx) {
           if (result.error) {
             if (result.error.code === UNREGISTERED_TOKEN_ERROR_CODE) {
               unregisteredTokens.push(firebaseTokens[idx]);
@@ -95,14 +95,14 @@ module.exports = function(job, done) {
           }
         });
         if (unregisteredTokens.length > 0) {
-          removeUserPushTokens(userId, unregisteredTokens, function(error) {
+          removeUserPushTokens(userId, unregisteredTokens, function (error) {
             (error && reject(error)) || resolve();
           });
         } else {
           resolve();
         }
       })
-      .catch(function(err) {
+      .catch(function (err) {
         reject(err);
       });
   });
@@ -121,18 +121,18 @@ module.exports = function(job, done) {
     async.reflect(firebasePushPromise),
     async.reflect(exponentPushPromise),
   ])
-    .then(function() {
-      process.nextTick(function() {
+    .then(function () {
+      process.nextTick(function () {
         log('info', 'Successfully finished `send push message` job', {
-          jobId: jobId,
+          jobId,
         });
         return done();
       });
     })
-    .catch(function(err) {
-      process.nextTick(function() {
+    .catch(function (err) {
+      process.nextTick(function () {
         log('error', 'The `send push notification` job failed', {
-          jobId: jobId,
+          jobId,
           error: err,
         });
         return done(new Error('Failed to send push message.'));
@@ -155,13 +155,13 @@ function removeUserPushTokens(userId, tokens, callback) {
     },
   };
 
-  User.findByIdAndUpdate(userId, query).exec(function(err) {
+  User.findByIdAndUpdate(userId, query).exec(function (err) {
     if (err) {
       log(
         'error',
         'The `send push notification` job failed to remove invalid tokens from user. #gj932f',
         {
-          err: err,
+          err,
         },
       );
     }

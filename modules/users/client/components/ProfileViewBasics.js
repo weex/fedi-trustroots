@@ -1,46 +1,32 @@
+// External dependencies
 import React from 'react';
-import classnames from 'classnames';
 import { Trans, useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
-import * as languages from '@/config/languages/languages';
+
+// Internal dependencies
 import {
+  getNetworkName,
   hasConnectedAdditionalSocialAccounts,
   isWarmshowersId,
   socialAccountLink,
 } from '../utils/networks';
+import { getGender } from '@/modules/core/client/utils/user_info';
+import LanguageList from './LanguageList';
 
 export default function ProfileViewBasics({ profile }) {
-  const { t } = useTranslation(['users', 'languages']);
-
-  /*
-   * Functions passing strings to translation fuction for translation scripts
-   */
-  const getGender = genderCode => {
-    switch (genderCode) {
-      case 'female':
-        return t('female');
-      case 'male':
-        return t('male');
-      case 'non-binary':
-        return t('non-binary');
-      case 'other':
-        return t('other');
-      default:
-        return undefined;
-    }
-  };
+  const { t } = useTranslation(['users']);
 
   const getBirthdate = birthdate =>
-    t('{{birthdate, age}} years', { birthdate: new Date(birthdate) });
+    t('{{birthdate, age}} years.', { birthdate: new Date(birthdate) });
 
   const getReplyRate = replyRate =>
-    t('Reply rate {{replyRate}}.', { replyRate: replyRate });
+    t('Reply rate {{replyRate}}.', { replyRate });
 
   const getReplyTime = replyTime =>
-    t('Replies within {{replyTime, fromNow}}.', { replyTime: replyTime });
+    t('Replies within {{replyTime, fromNow}}.', { replyTime });
 
   const getMemberSince = created =>
-    t('Member since {{date, MMM Do, YYYY}}', { date: new Date(created) });
+    t('Member since {{date, ll}}', { date: new Date(created) });
 
   const getSeenOnline = seen => {
     if (seen) {
@@ -48,9 +34,6 @@ export default function ProfileViewBasics({ profile }) {
     }
     return t('Online long ago');
   };
-
-  // i18next-extract-disable-next-line
-  const getLanguage = code => t(languages[code], { ns: 'languages' });
 
   /*
    * Rendering functions
@@ -67,15 +50,14 @@ export default function ProfileViewBasics({ profile }) {
     </div>
   );
 
-  const renderBirthdateAndGender = (birthdate, gender) => (
-    <div className="profile-sidebar-section">
-      {birthdate && getBirthdate(birthdate)}
-      {birthdate && gender && <span>, </span>}
-      <span className={classnames({ 'text-capitalize': !birthdate })}>
-        {getGender(gender)}.
-      </span>
-    </div>
-  );
+  const renderBirthdateAndGender = (birthdate, gender) => {
+    return (
+      <div className="profile-sidebar-section">
+        {birthdate && `${getBirthdate(birthdate)} `}
+        {gender && `${getGender(gender)}.`}
+      </div>
+    );
+  };
 
   const renderMemberSince = created => (
     <div className="profile-sidebar-section">{getMemberSince(created)}</div>
@@ -108,14 +90,10 @@ export default function ProfileViewBasics({ profile }) {
     </div>
   );
 
-  const renderLanguages = languagesList => (
+  const renderLanguages = languages => (
     <div className="profile-sidebar-section">
-      <h4 id="profile-languages">{t('Languages')}</h4>
-      <ul className="list-unstyled" aria-describedby="profile-languages">
-        {languagesList.map(code => (
-          <li key={code}>{getLanguage(code) || code}</li>
-        ))}
-      </ul>
+      <h4>{t('Languages')}</h4>
+      <LanguageList className="list-unstyled" languages={languages} />
     </div>
   );
 
@@ -143,13 +121,13 @@ export default function ProfileViewBasics({ profile }) {
                   />
                   <a
                     rel="noopener"
-                    className="social-profile-handle text-capitalize"
+                    className="social-profile-handle"
                     href={socialAccountLink(
                       network,
                       profile.additionalProvidersData[network],
                     )}
                   >
-                    {network}
+                    {getNetworkName(network)}
                   </a>
                 </li>
               )
@@ -206,6 +184,16 @@ export default function ProfileViewBasics({ profile }) {
 
   return (
     <div>
+      {(profile.isVolunteer || profile.isVolunteerAlumni) && (
+        <div className="profile-sidebar-section">
+          ✨{' '}
+          <a href="/team">
+            {profile.isVolunteer && t('Trustroots volunteer')}
+            {profile.isVolunteerAlumni && t('Trustroots volunteer alumni')}
+          </a>
+        </div>
+      )}
+
       {/* reply rate and reply time */}
       {(profile.replyRate || profile.replyTime) &&
         renderReplyData(profile.replyRate, profile.replyTime)}

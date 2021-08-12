@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { Modal } from 'react-bootstrap';
 
 export default function LeaveTribeModal({ tribe, show, onConfirm, onCancel }) {
-  const { t } = useTranslation('tribes');
+  const { t } = useTranslation('circles');
 
   return (
     <Modal show={show} onHide={onCancel}>
       <div className="modal-content">
         <Modal.Header>
-          <Modal.Title>{t('Leave this Tribe?')}</Modal.Title>
+          <Modal.Title>{t('Leave this circle?')}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -19,7 +19,7 @@ export default function LeaveTribeModal({ tribe, show, onConfirm, onCancel }) {
 
         <Modal.Footer>
           <button className="btn btn-primary" onClick={onConfirm}>
-            {t('Leave Tribe')}
+            {t('Leave circle')}
           </button>
           <button className="btn btn-default" onClick={onCancel}>
             {t('Cancel')}

@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 // Internal dependencies
 import { getUser, setUserRole } from '../api/users.api';
 import AdminHeader from './AdminHeader.component';
+import AdminNotes from './AdminNotes';
 import Json from './Json.component';
 import UserEmailConfirmLink from './UserEmailConfirmLink.component';
 import UserState from './UserState.component';
@@ -111,51 +112,54 @@ export default class AdminUser extends Component {
 
           {isProfile && (
             <>
-              <div className="row">
-                <div className="col-xs-12 col-md-6">
-                  <h3 className="pull-left">
-                    <strong>
-                      {user.profile.displayName ||
-                        user.profile.username ||
-                        user.profile._id}
-                    </strong>{' '}
-                    report card
-                  </h3>
-                </div>
-                <div className="col-xs-12 col-md-6">
-                  <div className="btn-group pull-right">
-                    <button
-                      className="btn btn-danger"
-                      disabled={
-                        user.profile.roles.includes('suspended') ||
-                        isSettingUserRole
-                      }
-                      onClick={() => this.handleUserRoleChange('suspended')}
-                    >
-                      Suspend
-                    </button>
-                    <button
-                      className="btn btn-danger"
-                      disabled={
-                        user.profile.roles.includes('shadowban') ||
-                        isSettingUserRole
-                      }
-                      onClick={() => this.handleUserRoleChange('shadowban')}
-                    >
-                      Shadow ban
-                    </button>
-                    <button
-                      className="btn btn-success"
-                      disabled={
-                        user.profile.roles.includes('moderator') ||
-                        isSettingUserRole
-                      }
-                      onClick={() => this.handleUserRoleChange('moderator')}
-                    >
-                      Make moderator
-                    </button>
-                  </div>
-                </div>
+              <h3 className="pull-left">
+                <strong>
+                  {user.profile.displayName ||
+                    user.profile.username ||
+                    user.profile._id}
+                </strong>{' '}
+                report card
+              </h3>
+
+              <div className="btn-group">
+                {[
+                  {
+                    role: 'suspended',
+                    color: 'danger',
+                    label: 'Suspend',
+                  },
+                  {
+                    role: 'shadowban',
+                    color: 'danger',
+                    label: 'Shadow ban',
+                  },
+                  {
+                    role: 'moderator',
+                    color: 'success',
+                    label: 'Make moderator',
+                  },
+                  {
+                    role: 'volunteer',
+                    color: 'success',
+                    label: 'Make volunteer',
+                  },
+                  {
+                    role: 'volunteer-alumni',
+                    color: 'success',
+                    label: 'Make volunteer alumni',
+                  },
+                ].map(({ role, color, label }) => (
+                  <button
+                    key={role}
+                    className={`btn btn-${color}`}
+                    disabled={
+                      user.profile.roles.includes(role) || isSettingUserRole
+                    }
+                    onClick={() => this.handleUserRoleChange(role)}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
 
               <h4 id="stats">
@@ -212,6 +216,8 @@ export default class AdminUser extends Component {
                   <UserEmailConfirmLink user={user.profile} />
                 </div>
               </div>
+
+              <AdminNotes id={this.state.id} />
 
               <h4 id="profile">
                 Profile

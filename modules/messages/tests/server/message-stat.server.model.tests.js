@@ -3,6 +3,9 @@
  */
 const should = require('should');
 const mongoose = require('mongoose');
+const path = require('path');
+const utils = require(path.resolve('./testutils/server/data.server.testutil'));
+
 const User = mongoose.model('User');
 const Message = mongoose.model('Message');
 const MessageStat = mongoose.model('MessageStat');
@@ -17,8 +20,8 @@ let message;
 /**
  * Unit tests
  */
-describe('MessageStats Model', function() {
-  beforeEach(function(/* done */) {
+describe('MessageStats Model', function () {
+  beforeEach(function (/* done */) {
     user0 = new User({
       firstName: 'Full',
       lastName: 'Name',
@@ -47,11 +50,9 @@ describe('MessageStats Model', function() {
     });
   });
 
-  afterEach(function(done) {
-    MessageStat.deleteMany().exec(done);
-  });
+  afterEach(utils.clearDatabase);
 
-  it('new MessageStat should have specific fields', function() {
+  it('new MessageStat should have specific fields', function () {
     const messageStat = new MessageStat({
       firstMessageUserFrom: user0._id,
       firstMessageUserTo: user1._id,
@@ -77,7 +78,7 @@ describe('MessageStats Model', function() {
   // firstReplyLength: number
   // timeToFirstReply: number
   // // messageCount: number (not now)
-  it('should save without problems', function(done) {
+  it('should save without problems', function (done) {
     const messageStat = new MessageStat({
       firstMessageUserFrom: user0._id,
       firstMessageUserTo: user1._id,
@@ -85,7 +86,7 @@ describe('MessageStats Model', function() {
       firstMessageLength: message.content.length,
     });
 
-    messageStat.save(function(err) {
+    messageStat.save(function (err) {
       should.not.exist(err);
       return done();
     });

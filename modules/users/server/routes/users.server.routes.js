@@ -3,10 +3,11 @@
  */
 const usersPolicy = require('../policies/users.server.policy');
 const userProfile = require('../controllers/users.profile.server.controller');
+const userAvatar = require('../controllers/users.avatar.server.controller');
 const userPassword = require('../controllers/users.password.server.controller');
 const userAuthentication = require('../controllers/users.authentication.server.controller');
 
-module.exports = function(app) {
+module.exports = function (app) {
   // Setting up the users profile api
   app
     .route('/api/users')
@@ -24,7 +25,12 @@ module.exports = function(app) {
   app
     .route('/api/users-avatar')
     .all(usersPolicy.isAllowed)
-    .post(userProfile.avatarUploadField, userProfile.avatarUpload);
+    .post(userAvatar.avatarUploadField, userAvatar.avatarUpload);
+
+  app
+    .route('/api/users/:avatarUserId/avatar')
+    .all(usersPolicy.isAllowed)
+    .get(userAvatar.getAvatar);
 
   app
     .route('/api/users/memberships')
@@ -36,16 +42,6 @@ module.exports = function(app) {
     .all(usersPolicy.isAllowed)
     .post(userProfile.joinTribe)
     .delete(userProfile.leaveTribe);
-
-  app
-    .route('/api/users/invitecode')
-    .all(usersPolicy.isAllowed)
-    .get(userProfile.getInviteCode);
-
-  app
-    .route('/api/users/invitecode/:invitecode')
-    .all(usersPolicy.isAllowed)
-    .post(userProfile.validateInviteCode);
 
   app
     .route('/api/users/push/registrations')
@@ -76,4 +72,5 @@ module.exports = function(app) {
   // Finish by binding the user middleware
   app.param('userId', userProfile.userMiniByID);
   app.param('username', userProfile.userByUsername);
+  app.param('avatarUserId', userAvatar.userForAvatarByUserId);
 };

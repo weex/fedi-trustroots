@@ -2,14 +2,15 @@
  * Module dependencies.
  */
 const _ = require('lodash');
+const mongoose = require('mongoose');
 const path = require('path');
+
 const errorService = require(path.resolve(
   './modules/core/server/services/error.server.service',
 ));
-const escapeStringRegexp = require('escape-string-regexp');
-const mongoose = require('mongoose');
 const log = require(path.resolve('./config/lib/logger'));
 
+const AdminNote = mongoose.model('AdminNote');
 const Contact = mongoose.model('Contact');
 const Message = mongoose.model('Message');
 const Offer = mongoose.model('Offer');
@@ -68,6 +69,20 @@ function obfuscateTokens(user) {
   return _user;
 }
 
+/**
+ * From https://github.com/sindresorhus/escape-string-regexp/blob/ba9a4473850cb367936417e97f1f2191b7cc67dd/index.js
+ * Import as a package once we support ESM modules
+ */
+function escapeStringRegexp(string) {
+  if (typeof string !== 'string') {
+    throw new TypeError('Expected a string');
+  }
+
+  // Escape characters with special meaning either inside or outside character sets.
+  // Use a simple backslash escape when it’s always valid, and a `\xnn` escape when the simpler form would be disallowed by Unicode patterns’ stricter grammar.
+  return string.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&').replace(/-/g, '\\x2d');
+}
+
 /*
  * This middleware sends response with an array of found users
  */
@@ -116,11 +131,10 @@ exports.searchUsers = (req, res) => {
 exports.listUsersByRole = (req, res) => {
   const role = _.get(req, ['body', 'role']);
 
+  const validRoles = User.schema.path('roles').caster.enumValues || [];
+
   // Allowed roles to query
-  if (
-    !role ||
-    !['shadowban', 'suspended', 'admin', 'moderator'].includes(role)
-  ) {
+  if (!role || !validRoles.includes(role)) {
     return res.status(400).send({
       message: 'Invalid role.',
     });
@@ -201,12 +215,12 @@ exports.getUser = async (req, res) => {
     }).count();
 
     const threadReferencesReceivedYes = await ReferenceThread.find({
-      userFrom: userId,
+      userTo: userId,
       reference: 'yes',
     }).count();
 
     const threadReferencesSentYes = await ReferenceThread.find({
-      userto: userId,
+      userFrom: userId,
       reference: 'yes',
     }).count();
 
@@ -254,8 +268,10 @@ exports.changeRole = async (req, res) => {
   const userId = _.get(req, ['body', 'id']);
   const role = _.get(req, ['body', 'role']);
 
+  const validRoles = User.schema.path('roles').caster.enumValues || [];
+
   // Allowed new roles — for security reasons never allow `admin` role to be changed programmatically.
-  if (!role || !['shadowban', 'suspended', 'moderator'].includes(role)) {
+  if (!role || role === 'admin' || !validRoles.includes(role)) {
     return res.status(400).send({
       message: 'Invalid role.',
     });
@@ -269,14 +285,14 @@ exports.changeRole = async (req, res) => {
   }
 
   // If switching role to 'suspended', change also these settings straight up
-  const additionalChanges =
+  const additionalChangesForSuspended =
     role === 'suspended' ? { $set: { newsletter: false, public: false } } : {};
 
   try {
     const user = await User.updateOne(
       { _id: userId },
       {
-        ...additionalChanges,
+        ...additionalChangesForSuspended,
         $addToSet: {
           roles: role,
         },
@@ -290,9 +306,46 @@ exports.changeRole = async (req, res) => {
       });
     }
 
+    let roleChangeMessage = `Role "${role}" added.`;
+
+    // If adding role 'volunteer-alumni', remove 'volunteer' role
+    if (role === 'volunteer-alumni') {
+      await User.updateOne({ _id: userId }, { $pull: { roles: 'volunteer' } });
+      roleChangeMessage = 'User made into volunteer-alumni.';
+    }
+
+    // If adding role 'volunteer', remove 'volunteer-alumni' role
+    if (role === 'volunteer') {
+      await User.updateOne(
+        { _id: userId },
+        { $pull: { roles: 'volunteer-alumni' } },
+      );
+      roleChangeMessage = 'User made into volunteer.';
+    }
+
+    // If adding role 'shadowban', remove 'suspended' role
+    if (role === 'shadowban') {
+      await User.updateOne({ _id: userId }, { $pull: { roles: 'suspended' } });
+      roleChangeMessage = 'User shadowbanned.';
+    }
+
+    // If adding role 'suspended', remove 'shadowban' role
+    if (role === 'suspended') {
+      await User.updateOne({ _id: userId }, { $pull: { roles: 'shadowban' } });
+      roleChangeMessage = 'User suspended.';
+    }
+
+    // Add new admin-note about role change
+    const adminNoteItem = new AdminNote({
+      admin: req.user._id,
+      note: `<p><b>Performed action:</b></p><p><i>${roleChangeMessage}</i></p>`,
+      user: userId,
+    });
+    await adminNoteItem.save();
+
     res.send({ message: 'Role changed.' });
   } catch (err) {
-    log('error', 'Failed to load member in admin tool. #ggi323', {
+    log('error', 'Failed to update member in admin tool. #ggi323', {
       error: err,
     });
     handleAdminApiError(res, err);

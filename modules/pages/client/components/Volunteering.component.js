@@ -1,18 +1,15 @@
 import React from 'react';
+import Board from '@/modules/core/client/components/Board.js';
 import { useTranslation } from 'react-i18next';
-import '@/config/client/i18n';
-import { selectPhoto } from '@/modules/core/client/services/photos.service';
 
 export default function Volunteering() {
   const { t } = useTranslation('pages');
 
-  const photo = selectPhoto('happyhippies');
-
   return (
     <>
-      <section
-        className="board volunteer-header board-happyhippies"
-        style={{ backgroundImage: `url("${photo.imageUrl}")` }}
+      <Board
+        className="volunteer-header board-happyhippies"
+        names="happyhippies"
       >
         <div className="container">
           <div className="row">
@@ -27,7 +24,8 @@ export default function Volunteering() {
           </div>
         </div>
         <div></div>
-      </section>
+      </Board>
+
       <section className="container container-spacer">
         <div className="row">
           <div className="col-xs-12 col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8">
@@ -47,17 +45,18 @@ export default function Volunteering() {
               )}
             </p>
             <p>
-              <a href="https://team.trustroots.org/">{t('Team Guide')}</a>
+              <ul className="list-inline">
+                <li>
+                  <a href="https://team.trustroots.org/Volunteering.html">
+                    {t('Team Guide')}
+                  </a>
+                </li>
+                <li>
+                  <a href="/team">{t('Meet the team')}</a>
+                </li>
+              </ul>
             </p>
           </div>
-          <a
-            className="btn btn-xs btn-primary pull-right"
-            href="https://github.com/Trustroots/trustroots/edit/master/modules/pages/client/components/Volunteering.component.js"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Edit this page<i className="icon-github icon-lg"></i>
-          </a>
         </div>
       </section>
     </>

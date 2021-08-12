@@ -14,9 +14,6 @@
 
 #faq-sidebar.sidebar {
   margin-top: (20px + @navbar-height);
-  &.sidebar-sticky {
-    margin-top: 0;
-  }
 }
 
 .faq-question {
@@ -36,6 +33,10 @@
 }
 
 @keyframes faqFlash {
-  from { background-color: lighten(@brand-secondary, 20%); }
-  to { background-color: transparent; }
+  from {
+    background-color: lighten(@brand-secondary, 20%);
+  }
+  to {
+    background-color: transparent;
+  }
 }

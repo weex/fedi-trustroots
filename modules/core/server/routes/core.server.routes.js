@@ -1,28 +1,36 @@
 /**
  * Module dependencies.
  */
+const _ = require('lodash');
 const path = require('path');
 const facebookNotificationService = require(path.resolve(
   './modules/core/server/services/facebook-notification.server.service',
 ));
 const core = require('../controllers/core.server.controller');
-const userProfile = require(path.resolve(
-  './modules/users/server/controllers/users.profile.server.controller',
-));
 const tribes = require(path.resolve(
   './modules/tribes/server/controllers/tribes.server.controller',
 ));
 
-module.exports = function(app) {
-  const redirect = function(src, dst) {
-    app.route(src).get(function(req, res) {
+module.exports = function (app) {
+  const redirect = function (src, dst) {
+    app.route(src).get(function (req, res) {
       res.redirect(301, dst);
     });
   };
 
   redirect('/invite', '/signup');
-  redirect('/tribes/lgbt', '/tribes/lgbtq');
-  redirect('/tribes/vegans-vegetarians', '/tribes/veg');
+  redirect('/tribes/lgbt', '/circles/lgbtq');
+  redirect('/tribes/vegans-vegetarians', '/circles/veg');
+
+  // `/tribes/*` and `/faq/tribes` routes deprecated in August 2020
+  // https://ideas.trustroots.org/2020/08/04/introducing-circles/
+  redirect('/faq/tribes', '/faq/circles');
+  redirect('/tribes', '/circles');
+  app.route('/tribes/:tribe').get(function (req, res) {
+    const tribe = _.get(req, ['tribe', 'slug']);
+    const route = tribe ? '/circles/' + tribe : '/circles';
+    res.redirect(301, route);
+  });
 
   // Gives the service worker access to any config it needs
   app.route('/config/sw.js').get(core.renderServiceWorkerConfig);
@@ -48,10 +56,7 @@ module.exports = function(app) {
 
   // Define a tribes route to ensure we'll pass tribe object to index
   // Object is passed to layout at `core.renderIndex()`
-  app.route('/tribes/:tribe').get(core.renderIndex);
-
-  // Short URL for invite codes
-  app.route('/c/:code').get(userProfile.redirectInviteShortUrl);
+  app.route('/circles/:tribe').get(core.renderIndex);
 
   // Define application route
   app.route('/*').get(core.renderIndex);

@@ -65,7 +65,7 @@ function getFuzzyLocation(location) {
  * @param {Array} coordinates - Expects location coordinates in an array: [lat, lon]
  * @returns {Boolean} true on success, false on failure.
  */
-const validateLocation = function(coordinates) {
+const validateLocation = function (coordinates) {
   if (!_.isArray(coordinates) || coordinates.length !== 2) {
     return false;
   }
@@ -80,7 +80,8 @@ const validateLocation = function(coordinates) {
 
   // Test longitude range (-180—+180)
   // Maximum length of digits after `.` is 30
-  const lonRegexp = /^\s?[+-]?(180(\.0+)?|1[0-7]\d(\.\d+)?|\d{1,2}(\.\d{1,30})?)\)?$/;
+  const lonRegexp =
+    /^\s?[+-]?(180(\.0+)?|1[0-7]\d(\.\d+)?|\d{1,2}(\.\d{1,30})?)\)?$/;
 
   return latRegexp.test(coordinates[0]) && lonRegexp.test(coordinates[1]);
 };
@@ -89,7 +90,7 @@ const validateLocation = function(coordinates) {
  * When `location` is modified, set also `locationFuzzy`
  * Keeps `location` unaltered.
  */
-const setLocation = function(value) {
+const setLocation = function (value) {
   this.locationFuzzy = getFuzzyLocation(value);
   return value;
 };
@@ -156,6 +157,10 @@ const OfferSchema = new Schema({
   },
   reactivateReminderSent: {
     type: Date,
+  },
+  showOnlyInMyCircles: {
+    type: Boolean,
+    default: false,
   },
 });
 

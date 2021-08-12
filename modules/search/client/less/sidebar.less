@@ -1,36 +1,12 @@
-@import '~bootstrap/less/mixins/background-variant';
-@import '~bootstrap/less/mixins/text-emphasis';
-@import '~bootstrap/less/mixins/text-overflow';
+@import '~bootstrap/less/mixins/background-variant'; // ~bootstrap/less/type depends on this
+@import '~bootstrap/less/mixins/text-emphasis'; // ~bootstrap/less/type depends on this
+@import '~bootstrap/less/mixins/text-overflow'; // ~bootstrap/less/type depends on this
 @import '~bootstrap/less/type';
 @import '~less/global-variables';
 @import './variables';
 
 // Styled as 'mobile first'
-.search-sidebar {
-  position: absolute;
-  width: auto;
-  top: @navbar-height;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: auto;
-  z-index: @zindex-navbar;
-  overflow: hidden;
-  overflow-y: auto;
-  background: @gray-lighter;
-  box-shadow: 0 0 5px rgba(0,0,0,0.2);
-
-  @media (min-width: @screen-sm-min) {
-    background: @map-toolbar-background;
-    box-shadow: none;
-    overflow: visible;
-    overflow-y: auto;
-    min-width: @search-sidebar-min-width;
-    max-width: @search-sidebar-max-width;
-    width: @search-sidebar-percentage-width;
-    right: auto;
-  }
-
+.search-sidebar-container {
   // Active tab
   .nav-tabs.nav-justified > .active > a {
     border-bottom-color: @brand-primary;
@@ -39,6 +15,8 @@
   // Tabs are hidden on small screens
   // They are controlled via view controller JS instead
   @media (max-width: @screen-xs-max) {
+    width: 100%;
+    padding-top: 20px;
     .nav-tabs {
       display: none;
     }
@@ -72,8 +50,8 @@ body.is-site-announcement-visible {
   width: auto;
   margin-right: 0;
   .btn,
-  input[type="text"],
-  input[type="search"] {
+  input[type='text'],
+  input[type='search'] {
     border-radius: 0;
     &,
     &:disabled,
@@ -86,8 +64,8 @@ body.is-site-announcement-visible {
       box-shadow: none;
     }
   }
-  input[type="text"],
-  input[type="search"] {
+  input[type='text'],
+  input[type='search'] {
     border-right: 0;
   }
   .btn {
@@ -106,7 +84,8 @@ body.is-site-announcement-visible {
   }
 }
 
-.search-result, .message-recipient {
+.search-result,
+.message-recipient {
   user-select: none;
   position: relative;
   cursor: pointer;
@@ -114,7 +93,7 @@ body.is-site-announcement-visible {
     display: block;
     border-left: 3px solid #fff;
     border-radius: @panel-border-radius;
-    transition: all .1s linear;
+    transition: all 0.1s linear;
     text-decoration: none;
     color: @text-color;
   }
@@ -157,7 +136,8 @@ body.is-site-announcement-visible {
 
 .search-result-languages {
   padding: 10px 0 0 0;
-  &, h4 {
+  &,
+  h4 {
     font-size: @font-size-small;
   }
 }

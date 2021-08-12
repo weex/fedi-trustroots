@@ -5,16 +5,16 @@ const User = mongoose.model('User');
 
 let facebookNotificationService;
 
-describe('Service: facebook notifications', function() {
+describe('Service: facebook notifications', function () {
   const jobs = testutils.catchJobs();
 
-  before(function() {
+  before(function () {
     facebookNotificationService = require(path.resolve(
       './modules/core/server/services/facebook-notification.server.service',
     ));
   });
 
-  it('should not send notification to user whos FB id is missing', function(done) {
+  it('should not send notification to user whos FB id is missing', function (done) {
     // Service expects to receive Mongo objects, thus `new User()` here
     const userFrom = new User({
       username: 'usernameFrom',
@@ -33,7 +33,7 @@ describe('Service: facebook notifications', function() {
       userFrom,
       userTo,
       notification,
-      function(err) {
+      function (err) {
         if (err) return done(err);
 
         // Set assertions
@@ -44,7 +44,7 @@ describe('Service: facebook notifications', function() {
     );
   });
 
-  it('should not send notification to user whos FB access token is missing', function(done) {
+  it('should not send notification to user whos FB access token is missing', function (done) {
     // Service expects to receive Mongo objects, thus `new User()` here
     const userFrom = new User({
       username: 'usernameFrom',
@@ -63,7 +63,7 @@ describe('Service: facebook notifications', function() {
       userFrom,
       userTo,
       notification,
-      function(err) {
+      function (err) {
         if (err) return done(err);
 
         // Set assertions
@@ -74,25 +74,26 @@ describe('Service: facebook notifications', function() {
     );
   });
 
-  it('should not allow rendered templates to be longer than 180 characters', function(done) {
+  it('should not allow rendered templates to be longer than 180 characters', function (done) {
     // FB templates are in directory:
     // `./modules/core/server/views/facebook-notifications/`
-    facebookNotificationService.renderNotification('test', {}, function(
-      err,
-      res,
-    ) {
-      if (err) return done(err);
+    facebookNotificationService.renderNotification(
+      'test',
+      {},
+      function (err, res) {
+        if (err) return done(err);
 
-      // Set assertions
-      res.template.length.should.equal(180);
-      res.template.slice(-1).should.equal('…');
+        // Set assertions
+        res.template.length.should.equal(180);
+        res.template.slice(-1).should.equal('…');
 
-      done();
-    });
+        done();
+      },
+    );
   });
 
-  describe('unread messages notifications', function() {
-    it('can send unread messages notification', function(done) {
+  describe('unread messages notifications', function () {
+    it('can send unread messages notification', function (done) {
       // Service expects to receive Mongo objects, thus `new User()` here
       const userFrom = new User({
         username: 'usernameFrom',
@@ -112,7 +113,7 @@ describe('Service: facebook notifications', function() {
         userFrom,
         userTo,
         notification,
-        function(err) {
+        function (err) {
           if (err) return done(err);
 
           // Set assertions
@@ -138,7 +139,7 @@ describe('Service: facebook notifications', function() {
       );
     });
 
-    it('can refer to Facebook id of an user who sent the message that initiated the notification', function(done) {
+    it('can refer to Facebook id of an user who sent the message that initiated the notification', function (done) {
       // Service expects to receive Mongo objects, thus `new User()` here
       const userFrom = new User({
         username: 'usernameFrom',
@@ -163,7 +164,7 @@ describe('Service: facebook notifications', function() {
         userFrom,
         userTo,
         notification,
-        function(err) {
+        function (err) {
           if (err) return done(err);
 
           // Set assertions
@@ -181,7 +182,7 @@ describe('Service: facebook notifications', function() {
       );
     });
 
-    it('can have different template for 2nd notification', function(done) {
+    it('can have different template for 2nd notification', function (done) {
       // Service expects to receive Mongo objects, thus `new User()` here
       const userFrom = new User({
         username: 'usernameFrom',
@@ -202,7 +203,7 @@ describe('Service: facebook notifications', function() {
         userFrom,
         userTo,
         notification,
-        function(err) {
+        function (err) {
           if (err) return done(err);
 
           // Set assertions
@@ -228,7 +229,7 @@ describe('Service: facebook notifications', function() {
       );
     });
 
-    it('should mention how many unread messages user has', function(done) {
+    it('should mention how many unread messages user has', function (done) {
       // Service expects to receive Mongo objects, thus `new User()` here
       const userFrom = new User({
         username: 'usernameFrom',
@@ -248,7 +249,7 @@ describe('Service: facebook notifications', function() {
         userFrom,
         userTo,
         notification,
-        function(err) {
+        function (err) {
           if (err) return done(err);
 
           // Set assertions
