@@ -26,7 +26,7 @@ export default function NavigationLoggedIn({ currentPath, onSignout, user }) {
           <a href="/" className="hidden-xs" aria-hidden="true">
             <img
               className="hidden-xs hidden-sm"
-              src="/img/logo/horizontal-white.svg"
+              src="/placeholder.png"
               alt="Trustroots"
               width="177"
               height="31"
@@ -48,15 +48,15 @@ export default function NavigationLoggedIn({ currentPath, onSignout, user }) {
           id="support-dropdown"
           title={t('Support')}
         >
-          <DropMenuItem href="/faq">
+          {/*           <DropMenuItem href="/faq">
             {t('Frequently Asked Questions')}
-          </DropMenuItem>
+          </DropMenuItem> */}
           <DropMenuItem href="/support">{t('Contact us')}</DropMenuItem>
         </NavDropdown>
       </Nav>
 
       <Nav className="nav-header-primary">
-        <MenuItem
+        {/*         <MenuItem
           currentPath={currentPath}
           path="/circles"
           aria-label={t('Circles')}
@@ -68,7 +68,7 @@ export default function NavigationLoggedIn({ currentPath, onSignout, user }) {
             size="lg"
           />
           <span className="hidden-xs">{t('Circles')}</span>
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem
           currentPath={currentPath}
           path="/search"
@@ -158,7 +158,7 @@ export default function NavigationLoggedIn({ currentPath, onSignout, user }) {
                 href: '/',
                 label: t('About'),
               },
-              {
+              /*               {
                 href: '/volunteering',
                 label: t('Volunteering'),
               },
@@ -185,10 +185,10 @@ export default function NavigationLoggedIn({ currentPath, onSignout, user }) {
               {
                 href: '/rules',
                 label: t('Rules'),
-              },
+              }, */
             ]}
           />
-          <DropMenuItem divider />
+          {/*           <DropMenuItem divider />
           <SubMenuList
             list={[
               {
@@ -211,7 +211,7 @@ export default function NavigationLoggedIn({ currentPath, onSignout, user }) {
                 label: t('Blog'),
               },
             ]}
-          />
+          /> */}
         </NavDropdown>
         <MenuItem
           aria-label={t('My profile, info and support')}
